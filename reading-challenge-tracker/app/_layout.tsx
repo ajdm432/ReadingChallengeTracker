@@ -6,9 +6,8 @@ import {
 import { Stack } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import "react-native-reanimated";
-
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { migrateDb } from "../db/schema";
+import { migrateDb } from "@/db/schema";
 
 export const unstable_settings = {
   anchor: "(tabs)",

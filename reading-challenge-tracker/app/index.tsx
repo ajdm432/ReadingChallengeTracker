@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { getAllChallengeSummaries } from "../db/queries";
-import { type ChallengeSummary } from "../types/model";
+import { getAllChallengeSummaries } from "@/db/queries";
+import { type ChallengeSummary } from "@/types/model";
 
 export default function ChallengeListScreen() {
   const db = useSQLiteContext();
@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
   search: {
     borderWidth: 1,
     borderColor: "#ccc",
+    color: "#fff",
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#4a7c59",
+    backgroundColor: "#1eef5dff",
     justifyContent: "center",
     alignItems: "center",
     elevation: 4,

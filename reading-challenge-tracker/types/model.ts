@@ -6,8 +6,8 @@ export enum ReadStatus {
 
 export type ChallengeNoIds = {
   name: string;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   maxAssignmentsPerBook: number;
   categories: CategoryNoIds[];
 };
@@ -15,8 +15,8 @@ export type ChallengeNoIds = {
 export type Challenge = {
   id: number;
   name: string;
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
   maxAssignmentsPerBook: number;
   categories: Category[];
 };

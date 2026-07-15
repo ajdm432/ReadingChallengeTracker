@@ -154,8 +154,8 @@ export async function createChallenge(
       )`,
       [
         challenge.name,
-        challenge.startDate,
-        challenge.endDate,
+        challenge.startDate ?? null,
+        challenge.endDate ?? null,
         challenge.maxAssignmentsPerBook,
       ],
     );
