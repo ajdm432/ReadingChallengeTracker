@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Switch,
   Pressable,
+  Modal,
 } from "react-native";
 import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
@@ -14,6 +15,8 @@ import { type Challenge } from "@/types/model";
 import { getChallenge } from "@/db/queries";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import CreateCategory from "@/components/CreateCategory";
+import CategoryList from "@/components/CategoryList";
 
 const Separator = () => <View style={styles.separator} />;
 
@@ -23,7 +26,9 @@ export default function NewChallengeScreen() {
   const challengeId = id ? Number(id) : null;
   const [loading, setLoading] = useState(true);
   const [endDate, setEndDate] = useState(new Date());
-  const [show, setDateShow] = useState(false);
+  const [dateShow, setDateShow] = useState(false);
+  const [categoryShow, setCategoryShow] = useState(false);
+
   const [challenge, setChallenge] = useState<Challenge>({
     id: 0,
     name: "",
@@ -97,26 +102,26 @@ export default function NewChallengeScreen() {
         keyboardType="numeric"
       />
       <Separator />
-      <Text style={styles.header}>End Date</Text>
+      <Text style={styles.header}>Deadline</Text>
       <Text style={styles.subtitle}>
         The date by which you have to cross the finish line
       </Text>
       <Pressable
         style={({ pressed }) => [
           styles.dateButton,
-          pressed && styles.dateButtonPressed,
+          pressed && styles.buttonPressed,
         ]}
         onPress={() => {
           setDateShow(true);
         }}
       >
-        <Text style={styles.dateButtonText}>
+        <Text style={styles.buttonText}>
           {challenge.endDate
             ? new Date(challenge.endDate).toLocaleDateString()
             : "Select a date"}
         </Text>
       </Pressable>
-      {show && (
+      {dateShow && (
         <DateTimePicker
           testID="dateTimePicker"
           value={endDate}
@@ -134,6 +139,31 @@ export default function NewChallengeScreen() {
           }}
         />
       )}
+      <Separator />
+      <View style={styles.categoryHeader}>
+        <Text style={styles.header}>Categories</Text>
+        <Pressable
+          style={({ pressed }) => [
+            styles.categoryButton,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={() => setCategoryShow(true)}
+        >
+          <Text style={styles.buttonText}>+</Text>
+        </Pressable>
+      </View>
+      <Modal
+        visible={categoryShow}
+        onRequestClose={() => setCategoryShow(false)}
+      >
+        <CreateCategory
+          challengeId={challenge.id}
+          category={null}
+          onSave={() => setCategoryShow(false)}
+          onCancel={() => setCategoryShow(false)}
+        />
+      </Modal>
+      <CategoryList />
       <Separator />
       <Text style={styles.header}>Start Challenge?</Text>
       <Text style={styles.subtitle}>You can also do this later</Text>
@@ -189,12 +219,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontSize: 16,
   },
-  placeholderText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 200,
-    color: "#fff",
+  categoryHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  categoryButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 50,
+    backgroundColor: "#1eef5dff",
+    alignItems: "center",
+    justifyContent: "center",
   },
   switchContainer: {
     flexDirection: "row",
@@ -216,14 +252,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontSize: 16,
   },
-  dateButtonPressed: {
+  buttonPressed: {
     opacity: 0.7,
   },
-  dateButtonText: {
+  buttonText: {
     fontSize: 24,
     color: "#ffffffff",
+    lineHeight: 30,
     fontWeight: "bold",
-    textAlign: "center",
   },
   separator: {
     marginVertical: 8,

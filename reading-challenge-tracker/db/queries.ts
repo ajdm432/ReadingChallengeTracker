@@ -592,6 +592,20 @@ export async function deleteCategory(
   }
 }
 
+export async function updateCategory(
+  db: SQLiteDatabase,
+  cat: Category,
+): Promise<void> {
+  const result = await db.runAsync(
+    `UPDATE category SET name = ?, color = ?, quota = ? WHERE id = ?`,
+    [cat.name, cat.color, cat.quota, cat.id],
+  );
+
+  if (result.changes === 0) {
+    throw new Error(`Category ${cat.id} not found. Could not update.`);
+  }
+}
+
 /** The killer feature: unread books that are candidates for categories
  *  whose quota isn't met yet. "What should I read next?"
  *  Hint: build on the same GROUP BY shape as getChallengeProgress. */
