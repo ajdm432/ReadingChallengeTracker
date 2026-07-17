@@ -11,6 +11,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { getAllChallengeSummaries } from "@/db/queries";
 import { type ChallengeSummary } from "@/types/model";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function ChallengeListScreen() {
   const db = useSQLiteContext();
@@ -72,15 +73,11 @@ export default function ChallengeListScreen() {
           </Text>
         }
         renderItem={({ item }) => (
-          <Pressable
-            style={({ pressed }) => [
-              styles.card,
-              pressed && styles.cardPressed,
-            ]}
-            onPress={() => router.push(`/challenge/${item.id}`)}
-          >
+          <View style={styles.card}>
             <View style={styles.cardText}>
-              <Text style={styles.cardTitle}>{item.name}</Text>
+              <Text style={styles.cardTitle}>
+                {item.name}: {item.overallPercent}%
+              </Text>
               <View style={styles.progressTrack}>
                 <View
                   style={[
@@ -90,8 +87,39 @@ export default function ChallengeListScreen() {
                 />
               </View>
             </View>
-            <Text style={styles.percent}>{item.overallPercent}%</Text>
-          </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                { marginHorizontal: 10 },
+                pressed && styles.pressed,
+              ]}
+              onPress={() =>
+                router.push({
+                  pathname: `/challenge/new`,
+                  params: { id: item.id },
+                })
+              }
+              hitSlop={10}
+            >
+              <Ionicons
+                name="create"
+                size={24}
+                color="#007AFF"
+                backgroundColor="#f2f2f7"
+              />
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [pressed && styles.pressed]}
+              onPress={() => router.push(`/challenge/${item.id}`)}
+              hitSlop={10}
+            >
+              <Ionicons
+                name="chevron-forward"
+                size={24}
+                color="#007AFF"
+                backgroundColor="#f2f2f7"
+              />
+            </Pressable>
+          </View>
         )}
       />
 
@@ -126,7 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f7",
     marginBottom: 10,
   },
-  cardPressed: {
+  pressed: {
     opacity: 0.7,
   },
   cardText: {
@@ -148,12 +176,6 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 3,
     backgroundColor: "#25e4feff",
-  },
-  percent: {
-    fontSize: 15,
-    fontWeight: "600",
-    minWidth: 44,
-    textAlign: "right",
   },
   emptyWrap: {
     flexGrow: 1,
@@ -186,6 +208,11 @@ const styles = StyleSheet.create({
   fabIcon: {
     fontSize: 28,
     color: "#fff",
+    lineHeight: 30,
+    fontWeight: "bold",
+  },
+  editIcon: {
+    color: "#1eef5dff",
     lineHeight: 30,
     fontWeight: "bold",
   },

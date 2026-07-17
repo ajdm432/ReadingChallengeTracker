@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
 
 type QuotaStepperProps = {
-  label: string;
   value: number;
   min?: number;
   max?: number;
@@ -9,12 +9,16 @@ type QuotaStepperProps = {
 };
 
 export default function QuotaStepper({
-  label,
   value,
   min = 0,
   max = 99,
   onChange,
 }: QuotaStepperProps) {
+  if (value < min) value = min;
+  useEffect(() => {
+    onChange(value);
+  }, []);
+
   const decrement = () => {
     if (value > min) onChange(value - 1);
   };

@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, Pressable, TextInput } from "react-native";
+import { View, Text, StyleSheet, TextInput } from "react-native";
 import { type Category } from "@/types/model";
 import QuotaStepper from "@/components/QuotaStepper";
 import ColourSelector from "@/components/ColourSelector";
+import SaveCancelButtons from "@/components/SaveCancelButtons";
+import * as Crypto from "expo-crypto";
 
 type CreateCategoryProps = {
   challengeId: number;
   category: Category | null;
-  onSave: (next: Category) => void;
+  onSave: (cat: Category, isNew: boolean) => void;
   onCancel: () => void;
 };
 
@@ -19,6 +21,7 @@ export default function CategoryModal({
   onSave,
   onCancel,
 }: CreateCategoryProps) {
+  const isNew = category === null;
   const [cat, setCategory] = useState<Category>(() => {
     if (category) {
       return category;
@@ -26,6 +29,7 @@ export default function CategoryModal({
       return {
         challengeId,
         id: 0,
+        draftId: Crypto.randomUUID(),
         name: "",
         color: "",
         quota: 0,
@@ -41,7 +45,9 @@ export default function CategoryModal({
         style={styles.titleInput}
         placeholder="My Category"
         value={cat.name}
-        onChangeText={(text) => setCategory({ ...cat, name: text })}
+        onChangeText={(text) =>
+          setCategory((prev) => ({ ...prev, name: text }))
+        }
         autoCorrect={false}
         clearButtonMode="while-editing"
       />
@@ -52,27 +58,22 @@ export default function CategoryModal({
         completed?
       </Text>
       <QuotaStepper
-        label={"Quota"}
         value={cat.quota}
         min={1}
         max={100}
-        onChange={(next) => setCategory({ ...cat, quota: next })}
+        onChange={(next) => setCategory((prev) => ({ ...prev, quota: next }))}
       />
       <Separator />
       <Text style={styles.header}>Colour</Text>
       <ColourSelector
         selectedColor={cat.color}
-        onPress={(c) => setCategory({ ...cat, color: c })}
+        onPress={(c) => setCategory((prev) => ({ ...prev, color: c }))}
       />
       <Separator />
-      <View style={styles.buttonPair}>
-        <Pressable style={styles.cancelButton} onPress={onCancel}>
-          <Text style={styles.buttonText}>Cancel</Text>
-        </Pressable>
-        <Pressable style={styles.saveButton} onPress={() => onSave(cat)}>
-          <Text style={styles.buttonText}>Save</Text>
-        </Pressable>
-      </View>
+      <SaveCancelButtons
+        onSave={() => onSave(cat, isNew)}
+        onCancel={onCancel}
+      />
     </View>
   );
 }
@@ -103,20 +104,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 12,
     fontSize: 16,
-  },
-  buttonPair: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  saveButton: {
-    backgroundColor: "#5ff2ffff",
-    padding: 12,
-    borderRadius: 10,
-  },
-  cancelButton: {
-    backgroundColor: "#fb3838ff",
-    padding: 12,
-    borderRadius: 10,
   },
   buttonText: {
     fontSize: 24,

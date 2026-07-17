@@ -196,6 +196,40 @@ export async function createChallenge(
   });
   return challengeId;
 }
+
+export async function updateChallenge(
+  db: SQLiteDatabase,
+  challenge: Challenge,
+): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    const existingChallenge = await getChallenge(db, challenge.id);
+    if (!existingChallenge) {
+      throw new Error(`Challenge ${challenge.id} not found. Could not update.`);
+    }
+    const result = await db.runAsync(
+      `UPDATE challenge SET name = ?, start_date = ?, end_date = ?, max_assignments_per_book = ? WHERE id = ?`,
+      [
+        challenge.name,
+        challenge.startDate ?? null,
+        challenge.endDate ?? null,
+        challenge.maxAssignmentsPerBook,
+        challenge.id,
+      ],
+    );
+    if (result.changes === 0) {
+      throw new Error(`Challenge ${challenge.id} not found. Could not update.`);
+    }
+    // reset categories
+    for (const cat of existingChallenge.categories) {
+      await deleteCategory(db, cat.id);
+    }
+
+    for (const cat of challenge.categories) {
+      await createCategory(db, challenge.id, cat);
+    }
+  });
+}
+
 /** Needs to delete challenge + its categories + subcategories + books */
 export async function deleteChallenge(
   db: SQLiteDatabase,

@@ -9,10 +9,15 @@ import {
   Pressable,
   Modal,
 } from "react-native";
-import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
+import {
+  router,
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+} from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { type Challenge } from "@/types/model";
-import { getChallenge } from "@/db/queries";
+import type { Challenge, ChallengeNoIds, Category } from "@/types/model";
+import { getChallenge, createChallenge, updateChallenge } from "@/db/queries";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import CreateCategory from "@/components/CreateCategory";
@@ -27,7 +32,68 @@ export default function NewChallengeScreen() {
   const [loading, setLoading] = useState(true);
   const [endDate, setEndDate] = useState(new Date());
   const [dateShow, setDateShow] = useState(false);
+  const [showCategory, setShowCategory] = useState<Category | null>(null);
   const [categoryShow, setCategoryShow] = useState(false);
+
+  const showForCategory = (category: Category | null) => {
+    setShowCategory(category);
+    setCategoryShow(true);
+  };
+
+  const createCategory = (cat: Category, isNew: boolean) => {
+    const existingCategory = challenge.categories.find(
+      (c) => c.name === cat.name && c.draftId !== cat.draftId,
+    );
+    if (existingCategory) {
+      alert("A category with the same name already exists.");
+      return;
+    }
+    if (isNew) {
+      setChallenge((prev) => ({
+        ...prev,
+        categories: [...prev.categories, cat],
+      }));
+      setCategoryShow(false);
+      return;
+    }
+    const index = challenge.categories.findIndex(
+      (c) => c.draftId === cat.draftId,
+    );
+    if (index !== -1) {
+      const newCategories = challenge.categories.map((c, i) => {
+        if (i === index) {
+          return cat;
+        }
+        return c;
+      });
+      setChallenge((prev) => ({ ...prev, categories: newCategories }));
+      setCategoryShow(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!challenge.name) {
+      alert("Please enter a name for the challenge before saving.");
+      return;
+    }
+
+    if (challengeId) {
+      // Update challenge
+      await updateChallenge(db, challenge);
+    } else {
+      // Create challenge
+      const challengeNoIds: ChallengeNoIds = {
+        name: challenge.name,
+        startDate: challenge.startDate ?? undefined,
+        endDate: challenge.endDate ?? undefined,
+        maxAssignmentsPerBook: challenge.maxAssignmentsPerBook,
+        categories: challenge.categories,
+      };
+      await createChallenge(db, challengeNoIds);
+    }
+
+    router.back();
+  };
 
   const [challenge, setChallenge] = useState<Challenge>({
     id: 0,
@@ -73,14 +139,26 @@ export default function NewChallengeScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen
-        options={{ title: challengeId ? "Edit Challenge" : "New Challenge" }}
+        options={{
+          title: challengeId ? "Edit Challenge" : "New Challenge",
+          headerRight: () => (
+            <Pressable
+              onPress={handleSave}
+              style={({ pressed }) => [pressed && styles.buttonPressed]}
+            >
+              <Text style={styles.saveButton}>Save</Text>
+            </Pressable>
+          ),
+        }}
       />
       <Text style={styles.header}>Challenge Title</Text>
       <TextInput
         style={styles.titleInput}
         placeholder="My Challenge"
         value={challenge.name}
-        onChangeText={(text) => setChallenge({ ...challenge, name: text })}
+        onChangeText={(text) =>
+          setChallenge((prev) => ({ ...prev, name: text }))
+        }
         autoCorrect={false}
         clearButtonMode="while-editing"
       />
@@ -95,7 +173,10 @@ export default function NewChallengeScreen() {
         placeholder="0"
         value={challenge.maxAssignmentsPerBook.toString()}
         onChangeText={(text) =>
-          setChallenge({ ...challenge, maxAssignmentsPerBook: Number(text) })
+          setChallenge((prev) => ({
+            ...prev,
+            maxAssignmentsPerBook: Number(text),
+          }))
         }
         autoCorrect={false}
         clearButtonMode="while-editing"
@@ -118,7 +199,7 @@ export default function NewChallengeScreen() {
         <Text style={styles.buttonText}>
           {challenge.endDate
             ? new Date(challenge.endDate).toLocaleDateString()
-            : "Select a date"}
+            : "Select Date"}
         </Text>
       </Pressable>
       {dateShow && (
@@ -131,10 +212,10 @@ export default function NewChallengeScreen() {
             setDateShow(false);
             if (event.type === "set" && selectedDate) {
               setEndDate(selectedDate);
-              setChallenge({
-                ...challenge,
+              setChallenge((prev) => ({
+                ...prev,
                 endDate: selectedDate.toLocaleDateString(),
-              });
+              }));
             }
           }}
         />
@@ -147,7 +228,7 @@ export default function NewChallengeScreen() {
             styles.categoryButton,
             pressed && styles.buttonPressed,
           ]}
-          onPress={() => setCategoryShow(true)}
+          onPress={() => showForCategory(null)}
         >
           <Text style={styles.buttonText}>+</Text>
         </Pressable>
@@ -158,32 +239,40 @@ export default function NewChallengeScreen() {
       >
         <CreateCategory
           challengeId={challenge.id}
-          category={null}
-          onSave={() => setCategoryShow(false)}
+          category={showCategory}
+          onSave={(cat: Category, isNew: boolean) => createCategory(cat, isNew)}
           onCancel={() => setCategoryShow(false)}
         />
       </Modal>
-      <CategoryList />
+      <CategoryList
+        categories={challenge.categories}
+        onCategoryPress={(c) => {
+          showForCategory(c);
+        }}
+      />
       <Separator />
-      <Text style={styles.header}>Start Challenge?</Text>
-      <Text style={styles.subtitle}>You can also do this later</Text>
-      <View style={styles.switchContainer}>
-        <Switch
-          trackColor={{ false: "#d62323ff", true: "#81f7ffff" }}
-          value={challenge.startDate !== null}
-          onValueChange={(value) => {
-            if (value) {
-              setChallenge({ ...challenge, startDate: String(new Date()) });
-            } else {
-              setChallenge({ ...challenge, startDate: null });
-            }
-          }}
-        />
-        <Text style={styles.switchText}>
-          {challenge.startDate ? "Yes" : "No"}
-        </Text>
+      <View style={styles.switchHeader}>
+        <Text style={styles.header}>Start Challenge?</Text>
+        <View style={styles.switchContainer}>
+          <Switch
+            trackColor={{ false: "#d62323ff", true: "#81f7ffff" }}
+            value={challenge.startDate !== null}
+            onValueChange={(value) => {
+              if (value) {
+                setChallenge((prev) => ({
+                  ...prev,
+                  startDate: String(new Date()),
+                }));
+              } else {
+                setChallenge((prev) => ({ ...prev, startDate: null }));
+              }
+            }}
+          />
+          <Text style={styles.switchText}>
+            {challenge.startDate ? "Yes" : "No"}
+          </Text>
+        </View>
       </View>
-      <Separator />
     </View>
   );
 }
@@ -192,6 +281,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  saveButton: {
+    color: "#007AFF",
+    fontSize: 17,
+    fontWeight: "bold",
   },
   loadingContainer: {
     flex: 1,
@@ -232,20 +326,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  switchHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 48,
+  },
   switchContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 22,
+    marginRight: 12,
+    gap: 12,
   },
   switchText: {
     fontSize: 16,
     color: "#fff",
   },
   dateButton: {
-    color: "#1eef5dff",
     borderWidth: 1,
-    borderColor: "#1eef5dff",
+    backgroundColor: "#1eef5dff",
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -258,8 +358,9 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 24,
     color: "#ffffffff",
-    lineHeight: 30,
+    lineHeight: 24,
     fontWeight: "bold",
+    textAlign: "center",
   },
   separator: {
     marginVertical: 8,

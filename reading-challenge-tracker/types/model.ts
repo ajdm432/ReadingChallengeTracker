@@ -30,6 +30,7 @@ export type CategoryNoIds = {
 
 export type Category = {
   id: number;
+  draftId?: string;
   challengeId: number;
   name: string;
   color: string;

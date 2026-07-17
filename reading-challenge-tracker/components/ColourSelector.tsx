@@ -1,5 +1,5 @@
 import { Pressable, View, StyleSheet } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ColourSelectorProps = {
   selectedColor: string;
@@ -11,6 +11,10 @@ export default function ColourSelector({
   onPress,
 }: ColourSelectorProps) {
   const [currColour, setCurrColour] = useState(selectedColor || "#00ffc8ff");
+
+  useEffect(() => {
+    onPress(currColour);
+  }, []);
 
   const colourOptions = [
     "#00ffc8ff",
@@ -39,6 +43,8 @@ export default function ColourSelector({
             setCurrColour(c);
             onPress(c);
           }}
+          hitSlop={12}
+          accessibilityLabel={c}
         />
       ))}
     </View>
@@ -49,6 +55,9 @@ const styles = StyleSheet.create({
   colourSelector: {
     flexDirection: "row",
     flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 24,
+    padding: 12,
   },
   selectedColour: {
     borderWidth: 3,
