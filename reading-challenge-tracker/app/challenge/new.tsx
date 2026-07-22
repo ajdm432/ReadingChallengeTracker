@@ -34,6 +34,14 @@ export default function NewChallengeScreen() {
   const [dateShow, setDateShow] = useState(false);
   const [showCategory, setShowCategory] = useState<Category | null>(null);
   const [categoryShow, setCategoryShow] = useState(false);
+  const [challenge, setChallenge] = useState<Challenge>({
+    id: 0,
+    name: "",
+    startDate: null,
+    endDate: null,
+    categories: [],
+    maxAssignmentsPerBook: 0,
+  });
 
   const showForCategory = (category: Category | null) => {
     setShowCategory(category);
@@ -77,32 +85,33 @@ export default function NewChallengeScreen() {
       return;
     }
 
-    if (challengeId) {
-      // Update challenge
-      await updateChallenge(db, challenge);
-    } else {
-      // Create challenge
-      const challengeNoIds: ChallengeNoIds = {
-        name: challenge.name,
-        startDate: challenge.startDate ?? undefined,
-        endDate: challenge.endDate ?? undefined,
-        maxAssignmentsPerBook: challenge.maxAssignmentsPerBook,
-        categories: challenge.categories,
-      };
-      await createChallenge(db, challengeNoIds);
+    try {
+      if (challengeId) {
+        // Update challenge
+        await updateChallenge(db, challenge);
+      } else {
+        // Create challenge
+        const challengeNoIds: ChallengeNoIds = {
+          name: challenge.name,
+          startDate: challenge.startDate ?? undefined,
+          endDate: challenge.endDate ?? undefined,
+          maxAssignmentsPerBook: challenge.maxAssignmentsPerBook,
+          categories: challenge.categories,
+        };
+        console.log(
+          "creating challenge with categories",
+          challengeNoIds.categories,
+        );
+        await createChallenge(db, challengeNoIds);
+      }
+    } catch (e) {
+      console.error("Failed to save challenge", e);
+      alert("Failed to save challenge: " + e);
+      return;
     }
 
     router.back();
   };
-
-  const [challenge, setChallenge] = useState<Challenge>({
-    id: 0,
-    name: "",
-    startDate: null,
-    endDate: null,
-    categories: [],
-    maxAssignmentsPerBook: 0,
-  });
 
   useFocusEffect(
     useCallback(() => {
@@ -249,6 +258,7 @@ export default function NewChallengeScreen() {
         onCategoryPress={(c) => {
           showForCategory(c);
         }}
+        onAssignPress={() => {}}
       />
       <Separator />
       <View style={styles.switchHeader}>
@@ -317,6 +327,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 12,
   },
   categoryButton: {
     width: 28,

@@ -12,6 +12,8 @@ import { useSQLiteContext } from "expo-sqlite";
 import { getAllChallengeSummaries } from "@/db/queries";
 import { type ChallengeSummary } from "@/types/model";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import AddButton from "@/components/AddButton";
+import GoButton from "@/components/IconButton";
 
 export default function ChallengeListScreen() {
   const db = useSQLiteContext();
@@ -104,32 +106,21 @@ export default function ChallengeListScreen() {
                 name="create"
                 size={24}
                 color="#007AFF"
-                backgroundColor="#f2f2f7"
+                backgroundColor="transparent"
               />
             </Pressable>
-            <Pressable
-              style={({ pressed }) => [pressed && styles.pressed]}
-              onPress={() => router.push(`/challenge/${item.id}`)}
-              hitSlop={10}
-            >
-              <Ionicons
-                name="chevron-forward"
-                size={24}
-                color="#007AFF"
-                backgroundColor="#f2f2f7"
-              />
-            </Pressable>
+            <GoButton
+              onPress={() =>
+                router.push({
+                  pathname: `/challenge/[id]`,
+                  params: { id: item.id, challengeTitle: item.name },
+                })
+              }
+            />
           </View>
         )}
       />
-
-      <Pressable
-        style={styles.fab}
-        onPress={() => router.push("/challenge/new")}
-        accessibilityLabel="Create new reading challenge"
-      >
-        <Text style={styles.fabIcon}>+</Text>
-      </Pressable>
+      <AddButton onPress={() => router.push("/challenge/new")} />
     </View>
   );
 }
@@ -185,31 +176,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#888",
     fontSize: 15,
-  },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 50,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#1eef5dff",
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-  },
-  fabIcon: {
-    fontSize: 28,
-    color: "#fff",
-    lineHeight: 30,
-    fontWeight: "bold",
   },
   editIcon: {
     color: "#1eef5dff",

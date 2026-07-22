@@ -1,8 +1,21 @@
 export enum ReadStatus {
-  READ = "READ",
-  NOT_READ = "NOT_READ",
-  DNF = "DID_NOT_FINISH",
+  READ = "read",
+  NOT_READ = "to_read",
+  DNF = "dnf",
 }
+
+export const getStatusColor = (status: ReadStatus) => {
+  switch (status) {
+    case ReadStatus.NOT_READ:
+      return "blue";
+    case ReadStatus.READ:
+      return "green";
+    case ReadStatus.DNF:
+      return "red";
+    default:
+      return "gray";
+  }
+};
 
 export type ChallengeNoIds = {
   name: string;
@@ -29,12 +42,13 @@ export type CategoryNoIds = {
 };
 
 export type Category = {
-  id: number;
+  id: number | null;
   draftId?: string;
   challengeId: number;
   name: string;
   color: string;
   quota: number;
+  assignedCount: number;
   subcategories: Subcategory[];
 };
 
@@ -80,4 +94,20 @@ export type ChallengeSummary = {
   startDate: string | null;
   endDate: string | null;
   overallPercent: number;
+};
+
+export type CategoryStatusForBook = {
+  categoryId: number;
+  color: string;
+  name: string;
+  isCandidate: boolean;
+  isAssigned: boolean;
+};
+
+export type BookStatusForCategory = {
+  title: string;
+  bookId: number;
+  author: string;
+  isCandidate: boolean;
+  isAssigned: boolean;
 };

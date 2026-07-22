@@ -9,6 +9,8 @@ import type {
   ChallengeNoIds,
   CategoryNoIds,
   ChallengeSummary,
+  CategoryStatusForBook,
+  BookStatusForCategory,
 } from "../types/model";
 import { ReadStatus } from "../types/model";
 
@@ -162,21 +164,7 @@ export async function createChallenge(
     challengeId = result.lastInsertRowId;
     // insert categories
     for (const cat of challenge.categories) {
-      const result = await db.runAsync(
-        `INSERT INTO category (
-          name,
-          color,
-          quota,
-          challenge_id
-        ) VALUES (
-          ?,
-          ?,
-          ?,
-          ?
-        )`,
-        [cat.name, cat.color, cat.quota, challengeId],
-      );
-      const categoryId = result.lastInsertRowId;
+      const categoryId = await createCategory(db, challengeId, cat);
       // insert subcategories for this category
       for (const sub of cat.subcategories) {
         await db.runAsync(
@@ -219,13 +207,28 @@ export async function updateChallenge(
     if (result.changes === 0) {
       throw new Error(`Challenge ${challenge.id} not found. Could not update.`);
     }
-    // reset categories
-    for (const cat of existingChallenge.categories) {
-      await deleteCategory(db, cat.id);
+
+    // diff categories. Delete removed categories, add new categories
+    const existingCategoryIds = existingChallenge.categories.map((c) => c.id);
+    const newCategoryIds = challenge.categories.map((c) => c.id);
+    const removedCategoryIds = existingCategoryIds.filter(
+      (c) => !newCategoryIds.includes(c),
+    );
+    const addedCategoryIds = newCategoryIds.filter(
+      (c) => !existingCategoryIds.includes(c),
+    );
+
+    for (const cat of removedCategoryIds) {
+      if (!cat) throw new Error(`Category id set to null. Could not delete`);
+      await deleteCategory(db, cat);
     }
 
-    for (const cat of challenge.categories) {
-      await createCategory(db, challenge.id, cat);
+    for (const cat of addedCategoryIds) {
+      await createCategory(
+        db,
+        challenge.id,
+        challenge.categories.find((c) => c.id === cat)!,
+      );
     }
   });
 }
@@ -252,23 +255,19 @@ export async function getChallenge(
     [challengeId],
   );
 
-  const category_rows: any = await db.getAllAsync(
-    `SELECT * FROM category WHERE challenge_id = ?`,
-    [challengeId],
-  );
+  const category_rows = await getCategories(db, challengeId);
+
+  console.log("got challenge with category rows", category_rows);
 
   const categories: Category[] = [];
   for (let i = 0; i < category_rows.length; i++) {
     const cat = category_rows[i];
     const rows = await db.getAllAsync(
-      `SELECT * FROM subcategory WHERE category_id = ?`,
+      `SELECT id, category_id AS categoryId, name, color FROM subcategory WHERE category_id = ?`,
       [cat.id],
     );
     const subcategories: Subcategory[] = rows.map((r: any) => ({
-      id: r.id,
-      categoryId: r.category_id,
-      name: r.name,
-      color: r.color,
+      ...r,
     }));
     const category: Category = {
       challengeId: challengeId,
@@ -276,10 +275,13 @@ export async function getChallenge(
       name: cat.name,
       color: cat.color,
       quota: cat.quota,
+      assignedCount: cat.assignedCount,
       subcategories: subcategories,
     };
     categories.push(category);
   }
+
+  console.log("got challenge with categories", categories);
 
   return {
     id: challenge_row.id,
@@ -298,11 +300,16 @@ export async function getCategories(
   challengeId: number,
 ): Promise<Category[]> {
   const rows = await db.getAllAsync(
-    `SELECT id,
-            name,
-            color,
-            quota
-      FROM category WHERE challenge_id = ?`,
+    `SELECT c.id,
+            c.name,
+            c.color,
+            c.quota,
+            COUNT(CASE WHEN bc.is_assigned = 1 THEN 1 END) AS assignedCount
+      FROM category c 
+      LEFT JOIN book_category bc on bc.category_id = c.id
+      WHERE challenge_id = ?
+      GROUP BY c.id
+      ORDER BY c.name`,
     [challengeId],
   );
 
@@ -324,7 +331,7 @@ export async function getCategories(
 
     categories[i].subcategories = subrows.map((r: any) => ({
       ...r,
-      categoryId: catId,
+      id: catId,
     }));
   }
 
@@ -511,17 +518,18 @@ export async function getChallengeProgress(
     quota: number;
     assignedCount: number;
   }>(
-    `SELECT c.id AS categoryId,
+    `SELECT c.id AS id,
             c.name AS name,
             c.color AS color,
             c.quota AS quota,
-            COUNT(CASE WHEN bc.is_assigned = 1 THEN 1 END) AS assignedCount
+            COUNT(CASE WHEN bc.is_assigned = 1 AND b.read_status = ? THEN 1 END) AS assignedCount
       FROM category c
       LEFT JOIN book_category bc on bc.category_id = c.id
+      LEFT JOIN book b on b.id = bc.book_id
     WHERE c.challenge_id = ?
     GROUP BY c.id
     ORDER BY c.name`,
-    [challengeId],
+    [ReadStatus.READ, challengeId],
   );
 
   const categories: CategoryProgress[] = rows.map((r) => ({
@@ -568,7 +576,6 @@ export async function getBooksForCategory(
   db: SQLiteDatabase,
   categoryId: number,
 ): Promise<Book[]> {
-  // TODO how to handle the case where subcategory from book_category is NULL?
   const rows = await db.getAllAsync(
     `SELECT b.id,
             b.challenge_id AS challengeId,
@@ -577,8 +584,6 @@ export async function getBooksForCategory(
             b.cover_uri AS coverUri,
             b.source,
             b.read_status AS readStatus,
-            sc.name AS subcategory,
-            bc.is_assigned AS isAssigned
     FROM book b
     INNER JOIN book_category bc ON bc.book_id = b.id AND category_id = ?
     LEFT JOIN subcategory sc ON sc.id = bc.subcategory_id
@@ -658,14 +663,72 @@ export async function getSuggestedNextReads(
     FROM book b
     INNER JOIN book_category bc ON bc.book_id = b.id
     INNER JOIN category c ON c.id = bc.category_id
-    WHERE b.read_status = ${ReadStatus.NOT_READ}
+    WHERE b.read_status = ?
     AND b.challenge_id = ?
     AND c.quota > (SELECT COUNT(*) FROM book_category bc2 WHERE bc2.category_id = c.id AND bc2.is_assigned = 1)
     ORDER BY b.title`,
-    [challengeId],
+    [ReadStatus.NOT_READ, challengeId],
   );
 
   return bookRows.map((r: any) => ({
     ...r,
+  }));
+}
+
+export async function getCategoryStatusesForBook(
+  db: SQLiteDatabase,
+  bookId: number,
+): Promise<CategoryStatusForBook[]> {
+  const rows = await db.getAllAsync<any>(
+    `SELECT c.id                AS categoryId,
+            c.name              AS name,
+            c.color             AS color,
+            CASE WHEN bc.book_id IS NULL THEN 0 ELSE 1 END AS isCandidate,
+            COALESCE(bc.is_assigned, 0) AS isAssigned,
+            bc.subcategory_id   AS subcategoryId,
+            sc.name             AS subcategoryName
+       FROM book b
+       JOIN category c  ON c.challenge_id = b.challenge_id
+       LEFT JOIN book_category bc
+              ON bc.category_id = c.id AND bc.book_id = b.id
+       LEFT JOIN subcategory sc ON sc.id = bc.subcategory_id
+      WHERE b.id = ?
+      ORDER BY c.name`,
+    [bookId],
+  );
+
+  return rows.map((r) => ({
+    categoryId: r.categoryId,
+    name: r.name,
+    color: r.color,
+    isCandidate: !!r.isCandidate, // SQLite has no booleans — 0/1 out
+    isAssigned: !!r.isAssigned,
+  }));
+}
+
+export async function getBookStatusesForCategory(
+  db: SQLiteDatabase,
+  categoryId: number,
+): Promise<BookStatusForCategory[]> {
+  const rows = await db.getAllAsync<any>(
+    `SELECT b.id, b.title, b.author, b.cover_uri,
+            CASE WHEN bc.book_id IS NULL THEN 0 ELSE 1 END AS isCandidate,
+            COALESCE(bc.is_assigned, 0) AS isAssigned
+        FROM category c
+        JOIN book b ON b.challenge_id = c.challenge_id
+        LEFT JOIN book_category bc
+              ON bc.book_id = b.id AND bc.category_id = c.id
+      WHERE c.id = ?
+      ORDER BY b.title`,
+    [categoryId],
+  );
+
+  return rows.map((r) => ({
+    title: r.title,
+    bookId: r.id,
+    author: r.author,
+    coverUri: r.coverUri,
+    isCandidate: !!r.isCandidate, // SQLite has no booleans — 0/1 out
+    isAssigned: !!r.isAssigned,
   }));
 }

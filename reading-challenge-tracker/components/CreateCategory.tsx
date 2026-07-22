@@ -23,18 +23,19 @@ export default function CategoryModal({
 }: CreateCategoryProps) {
   const isNew = category === null;
   const [cat, setCategory] = useState<Category>(() => {
-    if (category) {
-      return category;
-    } else {
+    if (!category) {
       return {
         challengeId,
-        id: 0,
+        id: null,
         draftId: Crypto.randomUUID(),
         name: "",
         color: "",
         quota: 0,
+        assignedCount: 0,
         subcategories: [],
       };
+    } else {
+      return category as Category;
     }
   });
 
