@@ -46,7 +46,6 @@ export default function ChallengeScreen() {
         </Pressable>
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
         {activeTab === "first" ? (
           <ChallengeCategoryList challengeId={challengeId} />
