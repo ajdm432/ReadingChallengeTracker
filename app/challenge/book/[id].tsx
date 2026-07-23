@@ -1,20 +1,17 @@
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
-import { useState, useCallback } from "react";
-import type { Book, Category, CategoryStatusForBook } from "@/types/model";
-import { ReadStatus, getStatusColor } from "@/types/model";
+import CategoryList from "@/components/CategoryList";
 import {
   getBook,
   getCategories,
   getCategoryStatusesForBook,
   setReadStatus,
-  setCandidacy,
-  removeCandidacy,
-  assignBookToCategory,
-  unassignBookFromCategory,
 } from "@/db/queries";
+import { setBookAssignment, setBookCandidacy } from "@/services/categories";
+import type { Book, Category, CategoryStatusForBook } from "@/types/model";
+import { ReadStatus, getStatusColor } from "@/types/model";
+import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { useLocalSearchParams, useFocusEffect, Stack } from "expo-router";
-import CategoryList from "@/components/CategoryList";
+import { useCallback, useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function BookScreen() {
   const db = useSQLiteContext();
@@ -23,7 +20,6 @@ export default function BookScreen() {
   const challengeIdInt: number = Array.isArray(challengeId)
     ? Number(challengeId[0])
     : Number(challengeId);
-  const [loading, setLoading] = useState(true);
   const [book, setBook] = useState<Book | null>(null);
   const [categoryStatuses, setCategoryStatuses] = useState<
     CategoryStatusForBook[]
@@ -56,19 +52,9 @@ export default function BookScreen() {
       (cs) => cs.categoryId === category.id,
     );
     const isAssigned = catStatus?.isAssigned;
-    if (isAssigned) {
-      alert(
-        "Cannot change candidacy of a book that is assigned to a category.",
-      );
-      return;
-    }
     const isCandidate = catStatus?.isCandidate;
     try {
-      if (isCandidate) {
-        await removeCandidacy(db, book.id, category.id!);
-      } else {
-        await setCandidacy(db, book.id, category.id!);
-      }
+      await setBookCandidacy(db, book, category, isCandidate!, isAssigned!);
     } catch (e) {
       alert(e);
       return;
@@ -91,39 +77,32 @@ export default function BookScreen() {
     );
     const isCandidate = catStatus?.isCandidate;
     const isAssigned = catStatus?.isAssigned;
-    if (!isCandidate) {
-      alert("Cannot assign a book to a category that is not a candidate.");
-      return;
-    }
+
     try {
-      if (isAssigned) {
-        await unassignBookFromCategory(db, book.id, category.id!);
-        setCategories((prev) => {
-          return prev.map((c) => {
-            if (c.id === category.id) {
-              return { ...c, assignedCount: c.assignedCount - 1 };
-            }
-            return c;
-          });
-        });
-      } else {
-        if (category.assignedCount >= category.quota) {
-          alert("This category is already full. Cannot assign more books.");
-          return;
-        }
-        await assignBookToCategory(db, book.id, category.id!);
-        setCategories((prev) => {
-          return prev.map((c) => {
-            if (c.id === category.id) {
-              return { ...c, assignedCount: c.assignedCount + 1 };
-            }
-            return c;
-          });
-        });
-      }
+      await setBookAssignment(db, book, category, isCandidate!, isAssigned!);
     } catch (e) {
       alert(e);
       return;
+    }
+
+    if (isAssigned) {
+      setCategories((prev) => {
+        return prev.map((c) => {
+          if (c.id === category.id) {
+            return { ...c, assignedCount: c.assignedCount - 1 };
+          }
+          return c;
+        });
+      });
+    } else {
+      setCategories((prev) => {
+        return prev.map((c) => {
+          if (c.id === category.id) {
+            return { ...c, assignedCount: c.assignedCount + 1 };
+          }
+          return c;
+        });
+      });
     }
 
     setCategoryStatuses((prev) => {
@@ -139,7 +118,6 @@ export default function BookScreen() {
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      setLoading(true);
       (async () => {
         try {
           const bookData = await getBook(db, Number(bookId));
@@ -151,7 +129,7 @@ export default function BookScreen() {
         } catch (e) {
           console.error("Failed to load book and category statuses", e);
         } finally {
-          if (!cancelled) setLoading(false);
+          if (cancelled) return;
         }
       })();
       return () => {

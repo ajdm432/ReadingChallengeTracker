@@ -1,10 +1,10 @@
-import { View, TextInput, FlatList, StyleSheet, Text } from "react-native";
 import { searchBooks, type BookSearchResult } from "@/api/openLibrary";
-import { useState, useEffect } from "react";
-import { useSQLiteContext } from "expo-sqlite";
+import BookRow from "@/components/challenge/BookRow";
 import { addBook, getBooksForChallenge } from "@/db/queries";
 import { type BookNoIds } from "@/types/model";
-import BookRow from "@/components/challenge/BookRow";
+import { useSQLiteContext } from "expo-sqlite";
+import { useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, TextInput, View } from "react-native";
 
 type ChallengeAddBookProps = {
   challengeId: number;
@@ -108,7 +108,7 @@ export default function ChallengeAddBook({
             mode="search"
             book={item}
             onPress={() => handleAddBook(item)}
-            OnPressRemove={() => {}}
+            OnPressSecondary={() => {}}
             added={booksAdded.has(item.source ?? "")}
           />
         )}

@@ -1,10 +1,11 @@
-import { View, TextInput, StyleSheet } from "react-native";
-import { useState, useCallback, useEffect } from "react";
-import { useFocusEffect } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
+import CategoryList from "@/components/CategoryList";
 import { getCategories } from "@/db/queries";
 import type { Category } from "@/types/model";
-import CategoryList from "@/components/CategoryList";
+import { useFocusEffect } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
+import { useCallback, useEffect, useState } from "react";
+import { Modal, StyleSheet, Text, TextInput, View } from "react-native";
+import ChallengeBookList from "./ChallengeBookList";
 
 type ChallengeCategoryListProps = {
   challengeId: number;
@@ -14,8 +15,12 @@ export default function ChallengeCategoryList({
   challengeId,
 }: ChallengeCategoryListProps) {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState<Category[]>([]);
+  const [showBooks, setShowBooks] = useState(false);
 
   const db = useSQLiteContext();
 
@@ -53,13 +58,61 @@ export default function ChallengeCategoryList({
         autoCorrect={false}
         clearButtonMode="while-editing"
       />
+      <Text style={styles.instructionText}>
+        Click a category to assign books to it:
+      </Text>
       <View style={styles.categories}>
         <CategoryList
           categories={filtered}
-          onCategoryPress={(c) => {}}
+          onCategoryPress={(c) => {
+            setShowBooks(true);
+            setSelectedCategory(c);
+          }}
           onAssignPress={() => {}}
         />
       </View>
+      <Modal visible={showBooks} onRequestClose={() => setShowBooks(false)}>
+        <ChallengeBookList
+          challengeId={challengeId}
+          mode="assign"
+          category={selectedCategory!}
+          onClose={() => setShowBooks(false)}
+          addCategoryQuota={() => {
+            const categoryIdx = categories.findIndex(
+              (c) => c.id === selectedCategory?.id,
+            );
+            const newCategory = {
+              ...categories[categoryIdx],
+              assignedCount: categories[categoryIdx].assignedCount + 1,
+            };
+            setCategories((prev) => {
+              return [
+                ...prev.slice(0, categoryIdx),
+                newCategory,
+                ...prev.slice(categoryIdx + 1),
+              ];
+            });
+            setSelectedCategory(newCategory);
+          }}
+          decreaseCategoryQuota={() => {
+            const categoryIdx = categories.findIndex(
+              (c) => c.id === selectedCategory?.id,
+            );
+            const newCategory = {
+              ...categories[categoryIdx],
+              assignedCount: categories[categoryIdx].assignedCount - 1,
+            };
+            setCategories((prev) => {
+              return [
+                ...prev.slice(0, categoryIdx),
+                newCategory,
+                ...prev.slice(categoryIdx + 1),
+              ];
+            });
+            setSelectedCategory(newCategory);
+          }}
+        />
+      </Modal>
     </View>
   );
 }
@@ -70,13 +123,17 @@ const styles = StyleSheet.create({
   },
   categories: {
     flex: 1,
-    marginTop: 12,
     marginBottom: 32,
+  },
+  instructionText: {
+    color: "#fff",
+    fontSize: 16,
+    fontStyle: "italic",
+    marginVertical: 6,
   },
   search: {
     borderWidth: 1,
     borderColor: "#ccc",
     color: "#fff",
-    marginBottom: 0,
   },
 });

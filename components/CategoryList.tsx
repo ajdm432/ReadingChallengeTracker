@@ -1,11 +1,11 @@
-import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
-import type { Category, CategoryStatusForBook } from "@/types/model";
 import IconButton from "@/components/IconButton";
+import type { Category, CategoryStatusForBook } from "@/types/model";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 const Separator = () => <View style={styles.separator} />;
 
 type CategoryListProps = {
-  categories?: Category[];
+  categories: Category[];
   catStatusForBook?: CategoryStatusForBook[];
   mode?: "edit" | "search" | "assign";
   onCategoryPress: (category: Category) => void;
@@ -13,20 +13,12 @@ type CategoryListProps = {
 };
 
 export default function CategoryList({
-  categories = [],
+  categories,
   catStatusForBook = [],
   mode = "edit",
   onCategoryPress,
   onAssignPress,
 }: CategoryListProps) {
-  const handleStatusCandidatePress = (category: Category) => {
-    onCategoryPress(category);
-  };
-
-  const handleStatusAssignPress = (category: Category) => {
-    onAssignPress(category);
-  };
-
   const isCandidate = function (category: Category) {
     return (
       mode === "assign" &&
@@ -48,6 +40,7 @@ export default function CategoryList({
         data={categories}
         keyExtractor={(item) => String(item.draftId ?? item.id)}
         contentContainerStyle={categories.length === 0 && styles.emptyWrap}
+        ItemSeparatorComponent={() => <Separator />}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             {mode === "edit"
@@ -74,9 +67,6 @@ export default function CategoryList({
                     Quota: {item.assignedCount}/{item.quota}
                   </Text>
                 </Pressable>
-                {categories.indexOf(item) < categories.length - 1 && (
-                  <Separator />
-                )}
               </View>
             );
           } else if (mode === "search") {
@@ -97,9 +87,6 @@ export default function CategoryList({
                     Quota: {item.assignedCount}/{item.quota}
                   </Text>
                 </Pressable>
-                {categories.indexOf(item) < categories.length - 1 && (
-                  <Separator />
-                )}
               </View>
             );
           } else {
@@ -117,18 +104,15 @@ export default function CategoryList({
                   color={isCandidate(item) ? "green" : "black"}
                   backgroundColor="#fff"
                   size={32}
-                  onPress={() => handleStatusCandidatePress(item)}
+                  onPress={() => onCategoryPress(item)}
                 />
                 <IconButton
                   icon={isAssigned(item) ? "lock-closed" : "lock-open"}
                   color="blue"
                   backgroundColor="#fff"
                   size={32}
-                  onPress={() => handleStatusAssignPress(item)}
+                  onPress={() => onAssignPress(item)}
                 />
-                {categories.indexOf(item) < categories.length - 1 && (
-                  <Separator />
-                )}
               </View>
             );
           }

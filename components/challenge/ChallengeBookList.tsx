@@ -1,33 +1,50 @@
+import AddButton from "@/components/AddButton";
+import BookRow from "@/components/challenge/BookRow";
+import ChallengeAddBook from "@/components/challenge/ChallengeAddBook";
+import IconButton from "@/components/IconButton";
+import { getBooksForChallenge, getBookStatusesForCategory } from "@/db/queries";
+import { setBookAssignment, setBookCandidacy } from "@/services/categories";
+import type { Book, BookStatusForCategory, Category } from "@/types/model";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
+import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
   Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import { useState, useCallback, useMemo } from "react";
-import { useFocusEffect, useRouter } from "expo-router";
-import { getBooksForChallenge } from "@/db/queries";
-import { useSQLiteContext } from "expo-sqlite";
-import type { Book } from "@/types/model";
-import AddButton from "../AddButton";
-import ChallengeAddBook from "@/components/challenge/ChallengeAddBook";
-import BookRow from "@/components/challenge/BookRow";
 
 type ChallengeBookListProps = {
+  mode: "list" | "assign";
   challengeId: number;
+  category?: Category;
+  onClose?: () => void;
+  addCategoryQuota?: () => void;
+  decreaseCategoryQuota?: () => void;
 };
 
 export default function ChallengeBookList({
+  mode,
   challengeId,
+  category,
+  onClose,
+  addCategoryQuota,
+  decreaseCategoryQuota,
 }: ChallengeBookListProps) {
   const db = useSQLiteContext();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [books, setBooks] = useState<Book[]>([]);
+  const [bookStatuses, setBookStatuses] = useState<BookStatusForCategory[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+
+  if (mode === "assign" && !category) {
+    throw new Error("category is required for assign mode");
+  }
 
   const loadBooks = useCallback(async () => {
     try {
@@ -35,10 +52,17 @@ export default function ChallengeBookList({
       setBooks(data);
     } catch (e) {
       console.error("Failed to load books", e);
-    } finally {
-      setLoading(false);
     }
   }, [db, challengeId]);
+
+  const loadBookStatuses = useCallback(async () => {
+    try {
+      const data = await getBookStatusesForCategory(db, category?.id!);
+      setBookStatuses(data);
+    } catch (e) {
+      console.error("Failed to load book statuses", e);
+    }
+  }, [db, category]);
 
   const handleRemoveBook = async (bookId: number) => {
     try {
@@ -49,10 +73,81 @@ export default function ChallengeBookList({
     }
   };
 
+  const handleSetCandidacy = async (
+    book: Book,
+    status: BookStatusForCategory | undefined,
+  ) => {
+    if (!status || !category || !book) return;
+    try {
+      await setBookCandidacy(
+        db,
+        book,
+        category,
+        status.isCandidate,
+        status.isAssigned,
+      );
+    } catch (e) {
+      alert(e);
+      return;
+    }
+
+    setBookStatuses((prev) => {
+      return prev.map((bs) => {
+        if (bs.bookId === book.id) {
+          return { ...bs, isCandidate: !bs.isCandidate };
+        }
+        return bs;
+      });
+    });
+  };
+
+  const handleSetAssignment = async (
+    book: Book,
+    status: BookStatusForCategory | undefined,
+  ) => {
+    if (!status || !category || !book) return;
+    try {
+      await setBookAssignment(
+        db,
+        book,
+        category,
+        status.isCandidate,
+        status.isAssigned,
+      );
+    } catch (e) {
+      alert(e);
+      return;
+    }
+
+    // update category quota
+    if (status.isAssigned) {
+      decreaseCategoryQuota!();
+    } else {
+      addCategoryQuota!();
+    }
+
+    setBookStatuses((prev) => {
+      return prev.map((bs) => {
+        if (bs.bookId === book.id) {
+          return { ...bs, isAssigned: !bs.isAssigned };
+        }
+        return bs;
+      });
+    });
+  };
+
   useFocusEffect(
     useCallback(() => {
-      loadBooks();
-    }, [loadBooks]),
+      setLoading(true);
+      try {
+        loadBooks();
+        if (mode === "assign") {
+          loadBookStatuses();
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, [loadBooks, loadBookStatuses, mode]),
   );
 
   const closeAdd = useCallback(() => {
@@ -73,6 +168,17 @@ export default function ChallengeBookList({
 
   return (
     <View style={styles.container}>
+      {mode === "assign" && (
+        <View style={styles.closeButton}>
+          <IconButton
+            icon="close"
+            color="#fff"
+            backgroundColor="#000"
+            size={32}
+            onPress={onClose!}
+          />
+        </View>
+      )}
       <TextInput
         style={styles.search}
         placeholder="Search books..."
@@ -95,32 +201,51 @@ export default function ChallengeBookList({
                 : "No books yet. Tap '+' to add your first book."}
           </Text>
         }
-        renderItem={({ item }) => (
-          <BookRow
-            book={item}
-            mode="list"
-            onPress={() =>
-              router.push({
-                pathname: `/challenge/book/[id]`,
-                params: { id: item.id, challengeId: challengeId },
-              })
-            }
-            OnPressRemove={() => handleRemoveBook(item.id)}
-          />
-        )}
-      />
-      <Modal visible={showAdd} onRequestClose={closeAdd}>
-        <ChallengeAddBook
-          challengeId={challengeId}
-          show={showAdd}
-          onClose={closeAdd}
-        />
-      </Modal>
-      <AddButton
-        onPress={() => {
-          setShowAdd(true);
+        renderItem={({ item }) => {
+          if (mode === "list") {
+            return (
+              <BookRow
+                book={item}
+                mode={mode}
+                onPress={() =>
+                  router.push({
+                    pathname: `/challenge/book/[id]`,
+                    params: { id: item.id, challengeId: challengeId },
+                  })
+                }
+                OnPressSecondary={() => handleRemoveBook(item.id)}
+              />
+            );
+          } else {
+            const bookStatus = bookStatuses.find((b) => b.bookId === item.id);
+            return (
+              <BookRow
+                book={item}
+                bookStatusForCat={bookStatus}
+                mode={mode}
+                onPress={() => handleSetCandidacy(item, bookStatus)}
+                OnPressSecondary={() => handleSetAssignment(item, bookStatus)}
+              />
+            );
+          }
         }}
       />
+      {mode === "list" && (
+        <View>
+          <Modal visible={showAdd} onRequestClose={closeAdd}>
+            <ChallengeAddBook
+              challengeId={challengeId}
+              show={showAdd}
+              onClose={closeAdd}
+            />
+            <AddButton
+              onPress={() => {
+                setShowAdd(true);
+              }}
+            />
+          </Modal>
+        </View>
+      )}
     </View>
   );
 }
@@ -128,6 +253,13 @@ export default function ChallengeBookList({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#000",
+  },
+  closeButton: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignContent: "center",
+    marginVertical: 12,
   },
   search: {
     borderWidth: 1,

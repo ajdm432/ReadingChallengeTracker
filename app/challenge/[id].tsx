@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
-import ChallengeCategoryList from "@/components/challenge/ChallengeCategoryList";
 import ChallengeBookList from "@/components/challenge/ChallengeBookList";
+import ChallengeCategoryList from "@/components/challenge/ChallengeCategoryList";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function ChallengeScreen() {
   const { id, challengeTitle } = useLocalSearchParams();
@@ -51,7 +51,7 @@ export default function ChallengeScreen() {
         {activeTab === "first" ? (
           <ChallengeCategoryList challengeId={challengeId} />
         ) : (
-          <ChallengeBookList challengeId={challengeId} />
+          <ChallengeBookList mode="list" challengeId={challengeId} />
         )}
       </View>
     </View>
