@@ -38,16 +38,22 @@ export default function BookRow({
   if (mode === "list") {
     return (
       <View style={styles.card}>
-        <Image
-          style={styles.coverImage}
-          source={{ uri: book.coverUri ?? "" }}
-        />
-        <View
-          style={[
-            styles.statusCircle,
-            { backgroundColor: getStatusColor((book as Book).readStatus) },
-          ]}
-        ></View>
+        <View style={styles.basicInfo}>
+          <Image
+            style={styles.coverImage}
+            source={{ uri: book.coverUri ?? "" }}
+          />
+          <View>
+            <Text style={styles.statusText}>Status:</Text>
+            <Text style={styles.statusText}>{(book as Book).readStatus}</Text>
+            <View
+              style={[
+                styles.statusCircle,
+                { backgroundColor: getStatusColor((book as Book).readStatus) },
+              ]}
+            />
+          </View>
+        </View>
         <View>
           <Text>{book.title}</Text>
           <Text style={{ fontStyle: "italic" }}>{book.author}</Text>
@@ -82,16 +88,22 @@ export default function BookRow({
   } else {
     return (
       <View style={styles.card}>
-        <Image
-          style={styles.coverImage}
-          source={{ uri: book.coverUri ?? "" }}
-        />
-        <View
-          style={[
-            styles.statusCircle,
-            { backgroundColor: getStatusColor((book as Book).readStatus) },
-          ]}
-        ></View>
+        <View style={styles.basicInfo}>
+          <Image
+            style={styles.coverImage}
+            source={{ uri: book.coverUri ?? "" }}
+          />
+          <View>
+            <Text style={styles.statusText}>Status:</Text>
+            <Text style={styles.statusText}>{(book as Book).readStatus}</Text>
+            <View
+              style={[
+                styles.statusCircle,
+                { backgroundColor: getStatusColor((book as Book).readStatus) },
+              ]}
+            />
+          </View>
+        </View>
         <View>
           <Text>{book.title}</Text>
           <Text style={{ fontStyle: "italic" }}>{book.author}</Text>
@@ -128,7 +140,15 @@ const styles = StyleSheet.create({
   coverImage: {
     width: 50,
     height: 75,
+  },
+  basicInfo: {
+    flexDirection: "row",
+    alignItems: "flex-start",
     marginRight: 12,
+    gap: 6,
+  },
+  statusText: {
+    fontSize: 12,
   },
   statusCircle: {
     width: 16,
