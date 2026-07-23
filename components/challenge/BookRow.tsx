@@ -8,7 +8,7 @@ type BookRowProps = {
   book: Book | BookSearchResult;
   bookStatusForCat?: BookStatusForCategory;
   added?: boolean;
-  mode: "list" | "search" | "assign";
+  mode: "list" | "add" | "assign";
   onPress: (book?: Book) => void;
   OnPressSecondary: (book?: Book) => void;
 };
@@ -35,6 +35,17 @@ export default function BookRow({
     return mode === "assign" && bookStatusForCat.isAssigned;
   };
 
+  const limitStringSize = function (
+    text: string | null | undefined,
+    limit: number = 50,
+  ) {
+    if (!text) return "";
+    if (text.length > limit) {
+      return text.substring(0, limit) + "...";
+    }
+    return text;
+  };
+
   if (mode === "list") {
     return (
       <View style={styles.card}>
@@ -55,8 +66,10 @@ export default function BookRow({
           </View>
         </View>
         <View>
-          <Text>{book.title}</Text>
-          <Text style={{ fontStyle: "italic" }}>{book.author}</Text>
+          <Text style={styles.infoText}>{limitStringSize(book.title)}</Text>
+          <Text style={[styles.infoText, styles.italic]}>
+            {limitStringSize(book.author!, 20)}
+          </Text>
         </View>
         <IconButton onPress={() => onPress()} />
         <IconButton
@@ -66,7 +79,7 @@ export default function BookRow({
         />
       </View>
     );
-  } else if (mode === "search") {
+  } else if (mode === "add") {
     return (
       <View style={styles.card}>
         <Image
@@ -74,8 +87,10 @@ export default function BookRow({
           source={{ uri: book.coverUri ?? "" }}
         />
         <View>
-          <Text>{book.title}</Text>
-          <Text style={{ fontStyle: "italic" }}>{book.author}</Text>
+          <Text style={styles.infoText}>{limitStringSize(book.title)}</Text>
+          <Text style={[styles.infoText, styles.italic]}>
+            {limitStringSize(book.author!, 20)}
+          </Text>
         </View>
         <IconButton
           icon={added ? "checkmark" : "add"}
@@ -105,8 +120,10 @@ export default function BookRow({
           </View>
         </View>
         <View>
-          <Text>{book.title}</Text>
-          <Text style={{ fontStyle: "italic" }}>{book.author}</Text>
+          <Text style={styles.infoText}>{limitStringSize(book.title)}</Text>
+          <Text style={[styles.infoText, styles.italic]}>
+            {limitStringSize(book.author!, 20)}
+          </Text>
         </View>
         <IconButton
           icon={isCandidate(bookStatusForCat) ? "checkmark" : "square"}
@@ -146,6 +163,14 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginRight: 12,
     gap: 6,
+  },
+  infoText: {
+    fontSize: 16,
+    maxWidth: 200,
+    flexWrap: "wrap",
+  },
+  italic: {
+    fontStyle: "italic",
   },
   statusText: {
     fontSize: 12,

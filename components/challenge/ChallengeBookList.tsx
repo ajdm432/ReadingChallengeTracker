@@ -238,12 +238,12 @@ export default function ChallengeBookList({
               show={showAdd}
               onClose={closeAdd}
             />
-            <AddButton
-              onPress={() => {
-                setShowAdd(true);
-              }}
-            />
           </Modal>
+          <AddButton
+            onPress={() => {
+              setShowAdd(true);
+            }}
+          />
         </View>
       )}
     </View>

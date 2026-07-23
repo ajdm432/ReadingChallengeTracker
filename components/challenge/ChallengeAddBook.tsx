@@ -1,5 +1,6 @@
 import { searchBooks, type BookSearchResult } from "@/api/openLibrary";
 import BookRow from "@/components/challenge/BookRow";
+import IconButton from "@/components/IconButton";
 import { addBook, getBooksForChallenge } from "@/db/queries";
 import { type BookNoIds } from "@/types/model";
 import { useSQLiteContext } from "expo-sqlite";
@@ -88,8 +89,18 @@ export default function ChallengeAddBook({
   }, [query]);
 
   return (
-    <View>
+    <View style={styles.container}>
+      <View style={styles.closeButton}>
+        <IconButton
+          icon="close"
+          color="#000"
+          backgroundColor="#fff"
+          size={32}
+          onPress={onClose!}
+        />
+      </View>
       <TextInput
+        style={styles.searchBar}
         placeholder="Search for a book"
         onChangeText={(text) => setQuery(text)}
       />
@@ -105,7 +116,7 @@ export default function ChallengeAddBook({
         }
         renderItem={({ item }) => (
           <BookRow
-            mode="search"
+            mode="add"
             book={item}
             onPress={() => handleAddBook(item)}
             OnPressSecondary={() => {}}
@@ -118,6 +129,18 @@ export default function ChallengeAddBook({
 }
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    flex: 1,
+  },
+  searchBar: {
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: 10,
+    paddingVertical: 8,
+    fontSize: 16,
+    marginBottom: 12,
+  },
   emptyText: {
     textAlign: "center",
     padding: 16,
@@ -132,5 +155,11 @@ const styles = StyleSheet.create({
   rowSeparator: {
     height: 1,
     backgroundColor: "#ccc",
+  },
+  closeButton: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignContent: "center",
+    marginVertical: 12,
   },
 });
