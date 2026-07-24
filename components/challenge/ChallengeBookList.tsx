@@ -2,7 +2,12 @@ import AddButton from "@/components/AddButton";
 import BookRow from "@/components/challenge/BookRow";
 import ChallengeAddBook from "@/components/challenge/ChallengeAddBook";
 import IconButton from "@/components/IconButton";
-import { getBooksForChallenge, getBookStatusesForCategory } from "@/db/queries";
+import {
+  deleteBook,
+  getBooksForChallenge,
+  getBookStatusesForCategory,
+  getSuggestedNextReads,
+} from "@/db/queries";
 import { setBookAssignment, setBookCandidacy } from "@/services/categories";
 import type { Book, BookStatusForCategory, Category } from "@/types/model";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -11,6 +16,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   Modal,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -38,9 +44,11 @@ export default function ChallengeBookList({
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [books, setBooks] = useState<Book[]>([]);
+  const [allBooks, setAllBooks] = useState<Book[]>([]);
+  const [suggestedBooks, setSuggestedBooks] = useState<Book[]>([]);
   const [bookStatuses, setBookStatuses] = useState<BookStatusForCategory[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [showSuggested, setShowSuggested] = useState(false);
 
   if (mode === "assign" && !category) {
     throw new Error("category is required for assign mode");
@@ -49,7 +57,7 @@ export default function ChallengeBookList({
   const loadBooks = useCallback(async () => {
     try {
       const data = await getBooksForChallenge(db, challengeId);
-      setBooks(data);
+      setAllBooks(data);
     } catch (e) {
       console.error("Failed to load books", e);
     }
@@ -66,8 +74,8 @@ export default function ChallengeBookList({
 
   const handleRemoveBook = async (bookId: number) => {
     try {
-      await db.runAsync(`DELETE FROM book WHERE id = ?`, [bookId]);
-      setBooks((books) => books.filter((b) => b.id !== bookId));
+      await deleteBook(db, bookId);
+      setAllBooks((allBooks) => allBooks.filter((b) => b.id !== bookId));
     } catch (e) {
       console.error("Failed to remove book", e);
     }
@@ -136,8 +144,21 @@ export default function ChallengeBookList({
     });
   };
 
+  const toggleShowSuggested = async () => {
+    if (!showSuggested) {
+      try {
+        const data = await getSuggestedNextReads(db, challengeId);
+        setSuggestedBooks(data);
+      } catch (e) {
+        console.error("Failed to load suggested books", e);
+      }
+    }
+    setShowSuggested((prev) => !prev);
+  };
+
   useFocusEffect(
     useCallback(() => {
+      setShowSuggested(false);
       setLoading(true);
       try {
         loadBooks();
@@ -157,6 +178,7 @@ export default function ChallengeBookList({
 
   // Filter data by search
   const visible = useMemo(() => {
+    const books = showSuggested ? suggestedBooks : allBooks;
     const q = search.trim().toLowerCase();
     if (!q) return books;
     return books.filter(
@@ -164,7 +186,7 @@ export default function ChallengeBookList({
         c.title.toLowerCase().includes(q) ||
         c.author?.toLowerCase().includes(q),
     );
-  }, [books, search]);
+  }, [allBooks, showSuggested, suggestedBooks, search]);
 
   return (
     <View style={styles.container}>
@@ -188,17 +210,48 @@ export default function ChallengeBookList({
         autoCorrect={false}
         clearButtonMode="while-editing"
       />
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginVertical: 12,
+          alignItems: "center",
+        }}
+      >
+        <Pressable
+          style={({ pressed }) => [
+            styles.suggestionButton,
+            pressed && styles.pressed,
+            showSuggested && { backgroundColor: "#ff9900ff" },
+          ]}
+          onPress={toggleShowSuggested}
+        >
+          <Text style={styles.buttonText}>
+            {showSuggested ? "Showing Suggested" : "Showing All"}
+          </Text>
+        </Pressable>
+        <AddButton
+          positionAbsolute={false}
+          size={44}
+          onPress={() => {
+            setShowAdd(true);
+          }}
+        />
+      </View>
       <FlatList
         data={visible}
+        style={styles.list}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={visible.length === 0 && styles.emptyWrap}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             {loading
               ? "Loading..."
-              : search
-                ? "No book titles or authors match your search"
-                : "No books yet. Tap '+' to add your first book."}
+              : showSuggested
+                ? "No suggested books yet"
+                : search
+                  ? "No book titles or authors match your search"
+                  : "No books yet. Tap '+' to add your first book."}
           </Text>
         }
         renderItem={({ item }) => {
@@ -239,11 +292,6 @@ export default function ChallengeBookList({
               onClose={closeAdd}
             />
           </Modal>
-          <AddButton
-            onPress={() => {
-              setShowAdd(true);
-            }}
-          />
         </View>
       )}
     </View>
@@ -265,10 +313,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     color: "#fff",
-    marginBottom: 12,
   },
-  emptyWrap: {},
-  emptyText: {},
+  suggestionButton: {
+    backgroundColor: "#007AFF",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#fff",
+  },
+  emptyWrap: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonText: { fontSize: 16, color: "#fff", fontWeight: "bold" },
+  pressed: { opacity: 0.7 },
+  list: {
+    flex: 1,
+    marginBottom: 32,
+  },
   card: {
     flexDirection: "row",
     alignItems: "center",

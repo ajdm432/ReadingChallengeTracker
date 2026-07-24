@@ -66,17 +66,19 @@ export default function BookRow({
           </View>
         </View>
         <View>
-          <Text style={styles.infoText}>{limitStringSize(book.title)}</Text>
+          <Text style={styles.infoText}>{limitStringSize(book.title, 20)}</Text>
           <Text style={[styles.infoText, styles.italic]}>
             {limitStringSize(book.author!, 20)}
           </Text>
         </View>
-        <IconButton onPress={() => onPress()} />
-        <IconButton
-          icon="trash"
-          color="red"
-          onPress={() => OnPressSecondary()}
-        />
+        <View style={styles.buttonPair}>
+          <IconButton onPress={() => onPress()} />
+          <IconButton
+            icon="trash"
+            color="red"
+            onPress={() => OnPressSecondary()}
+          />
+        </View>
       </View>
     );
   } else if (mode === "add") {
@@ -168,6 +170,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     maxWidth: 200,
     flexWrap: "wrap",
+  },
+  buttonPair: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   italic: {
     fontStyle: "italic",

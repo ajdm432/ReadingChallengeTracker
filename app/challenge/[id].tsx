@@ -59,7 +59,19 @@ export default function ChallengeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  bookTabContainer: { flex: 1 },
   tabBar: { flexDirection: "row", borderBottomWidth: 1, borderColor: "#ddd" },
+  suggestionButton: {
+    backgroundColor: "#007AFF",
+    padding: 12,
+    marginTop: 12,
+    marginHorizontal: 16,
+    marginBottom: 32,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonText: { fontSize: 16, color: "#fff", fontWeight: "bold" },
+  pressed: { opacity: 0.7 },
   tab: {
     flex: 1,
     paddingVertical: 14,

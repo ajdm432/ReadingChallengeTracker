@@ -1,14 +1,25 @@
-import { Pressable, StyleSheet } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Pressable, StyleSheet } from "react-native";
 
 type AddButtonProps = {
+  positionAbsolute?: boolean;
+  size?: number;
   onPress: () => void;
 };
 
-export default function AddButton({ onPress }: AddButtonProps) {
+export default function AddButton({
+  positionAbsolute = true,
+  size = 56,
+  onPress,
+}: AddButtonProps) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.fab, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        positionAbsolute && styles.absPos,
+        styles.fab,
+        pressed && styles.pressed,
+        { width: size, height: size },
+      ]}
       onPress={() => onPress()}
       accessibilityLabel="Create new reading challenge"
     >
@@ -23,12 +34,12 @@ export default function AddButton({ onPress }: AddButtonProps) {
 }
 
 const styles = StyleSheet.create({
-  fab: {
+  absPos: {
     position: "absolute",
     right: 20,
     bottom: 50,
-    width: 56,
-    height: 56,
+  },
+  fab: {
     borderRadius: 28,
     backgroundColor: "#1eef5dff",
     justifyContent: "center",
