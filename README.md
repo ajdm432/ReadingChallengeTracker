@@ -4,9 +4,28 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Requirements
 
-This is a hobby project designed for use on android only. There is currently no plan to support IOS devices.
+### Platform
+
+Android only.
+This is a hobby project designed for use on Android. There is currently no plan to support IOS devices.
+
+### Settings
+
+You will need to disable android's autoblocker to install the application. Follow the steps below:
+
+1. Navigate to `Settings -> Security and privacy`
+2. Find the `Auto Blocker` setting and toggle it off (you will need to pass a security check. Either use fingerprint or PIN authentication).
+3. This will temporarily disable Auto Blocker. If you wish to permanently disable it, tap on the `Auto Blocker` setting and scroll down. Toggle off the `Turn on automatically` setting.
+4. When you attempt to install the application, your phone will ask you to give your browser and/or file system application permissions to install unknown apps. Allow this.
+5. Finally, `Play Protect` may attempt to prevent the unknown app installation. To bypass this warning tap `more details` and then `Install anyway`.
 
 ## Releases
+
+Releases are not currently publicly available on Expo or app stores. If you want to use the app, the latest release can be installed here:
+
+| Version                                                                                   |
+| ----------------------------------------------------------------------------------------- |
+| [v0.1.0](https://github.com/ajdm432/ReadingChallengeTracker/releases/tag/v0.1.0) (latest) |
 
 ## Developers
 
