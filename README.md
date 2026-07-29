@@ -45,8 +45,12 @@ In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+
+## Useful commands:
+
+1. Create a new build: `eas build --platform <target platform> --profile <target profile>`
+2. Update an existing Build: `eas update --branch <branch-name> --platform <target platform> --message "<your message>"`
 
 ## Attributions
 
