@@ -1,14 +1,10 @@
-import { useCallback, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  ActivityIndicator,
-  Switch,
-  Pressable,
-  Modal,
-} from "react-native";
+import CategoryList from "@/components/CategoryList";
+import CreateCategory from "@/components/CreateCategory";
+import { createChallenge, getChallenge, updateChallenge } from "@/db/queries";
+import type { Category, Challenge, ChallengeNoIds } from "@/types/model";
+import DateTimePicker, {
+  type DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import {
   router,
   Stack,
@@ -16,12 +12,17 @@ import {
   useLocalSearchParams,
 } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import type { Challenge, ChallengeNoIds, Category } from "@/types/model";
-import { getChallenge, createChallenge, updateChallenge } from "@/db/queries";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import CreateCategory from "@/components/CreateCategory";
-import CategoryList from "@/components/CategoryList";
+import { useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 const Separator = () => <View style={styles.separator} />;
 
@@ -98,10 +99,6 @@ export default function NewChallengeScreen() {
           maxAssignmentsPerBook: challenge.maxAssignmentsPerBook,
           categories: challenge.categories,
         };
-        console.log(
-          "creating challenge with categories",
-          challengeNoIds.categories,
-        );
         await createChallenge(db, challengeNoIds);
       }
     } catch (e) {

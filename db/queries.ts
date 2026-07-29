@@ -2,15 +2,15 @@ import { type SQLiteDatabase } from "expo-sqlite";
 import type {
   Book,
   BookNoIds,
-  Category,
-  Challenge,
-  Subcategory,
-  CategoryProgress,
-  ChallengeNoIds,
-  CategoryNoIds,
-  ChallengeSummary,
-  CategoryStatusForBook,
   BookStatusForCategory,
+  Category,
+  CategoryNoIds,
+  CategoryProgress,
+  CategoryStatusForBook,
+  Challenge,
+  ChallengeNoIds,
+  ChallengeSummary,
+  Subcategory,
 } from "../types/model";
 import { ReadStatus } from "../types/model";
 
@@ -209,26 +209,23 @@ export async function updateChallenge(
     }
 
     // diff categories. Delete removed categories, add new categories
-    const existingCategoryIds = existingChallenge.categories.map((c) => c.id);
-    const newCategoryIds = challenge.categories.map((c) => c.id);
-    const removedCategoryIds = existingCategoryIds.filter(
-      (c) => !newCategoryIds.includes(c),
+    const existingCategories = existingChallenge.categories;
+    const newCategories = challenge.categories;
+    const removedCategories = existingCategories.filter(
+      (c1) => !newCategories.map((c2) => c2.draftId).includes(c1.draftId),
     );
-    const addedCategoryIds = newCategoryIds.filter(
-      (c) => !existingCategoryIds.includes(c),
+    const addedCategories = newCategories.filter(
+      (c1) => !existingCategories.map((c2) => c2.draftId).includes(c1.draftId),
     );
 
-    for (const cat of removedCategoryIds) {
+
+    for (const cat of removedCategories) {
       if (!cat) throw new Error(`Category id set to null. Could not delete`);
-      await deleteCategory(db, cat);
+      await deleteCategory(db, cat.id!);
     }
 
-    for (const cat of addedCategoryIds) {
-      await createCategory(
-        db,
-        challenge.id,
-        challenge.categories.find((c) => c.id === cat)!,
-      );
+    for (const cat of addedCategories) {
+      await createCategory(db, challenge.id, cat);
     }
   });
 }
@@ -257,8 +254,6 @@ export async function getChallenge(
 
   const category_rows = await getCategories(db, challengeId);
 
-  console.log("got challenge with category rows", category_rows);
-
   const categories: Category[] = [];
   for (let i = 0; i < category_rows.length; i++) {
     const cat = category_rows[i];
@@ -280,8 +275,6 @@ export async function getChallenge(
     };
     categories.push(category);
   }
-
-  console.log("got challenge with categories", categories);
 
   return {
     id: challenge_row.id,
