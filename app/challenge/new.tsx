@@ -94,6 +94,17 @@ export default function NewChallengeScreen() {
     setCategoryShow(false);
   };
 
+  const deleteCategory = (cat: Category, isNew: boolean) => {
+    if (isNew) {
+      // same as cancel
+      setCategoryShow(false);
+      return;
+    }
+    const newCategories = challenge.categories.filter((c) => c.id !== cat.id);
+    setChallenge((prev) => ({ ...prev, categories: newCategories }));
+    setCategoryShow(false);
+  };
+
   const handleSave = async () => {
     if (!challenge.name) {
       alert("Please enter a name for the challenge before saving.");
@@ -282,6 +293,9 @@ export default function NewChallengeScreen() {
         <CreateCategory
           challengeId={challenge.id}
           category={showCategory}
+          onDelete={(cat: Category, isNew: boolean) =>
+            deleteCategory(cat, isNew)
+          }
           onSave={(cat: Category, isNew: boolean) => createCategory(cat, isNew)}
           onCancel={() => setCategoryShow(false)}
         />

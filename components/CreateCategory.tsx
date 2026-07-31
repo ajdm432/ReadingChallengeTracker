@@ -1,14 +1,17 @@
-import { useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
-import { type Category } from "@/types/model";
-import QuotaStepper from "@/components/QuotaStepper";
 import ColourSelector from "@/components/ColourSelector";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import IconButton from "@/components/IconButton";
+import QuotaStepper from "@/components/QuotaStepper";
 import SaveCancelButtons from "@/components/SaveCancelButtons";
+import { type Category } from "@/types/model";
 import * as Crypto from "expo-crypto";
+import { useState } from "react";
+import { Modal, StyleSheet, Text, TextInput, View } from "react-native";
 
 type CreateCategoryProps = {
   challengeId: number;
   category: Category | null;
+  onDelete: (cat: Category, isNew: boolean) => void;
   onSave: (cat: Category, isNew: boolean) => void;
   onCancel: () => void;
 };
@@ -18,10 +21,12 @@ const Separator = () => <View style={styles.separator} />;
 export default function CategoryModal({
   challengeId,
   category,
+  onDelete,
   onSave,
   onCancel,
 }: CreateCategoryProps) {
   const isNew = category === null;
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [cat, setCategory] = useState<Category>(() => {
     if (!category) {
       return {
@@ -41,7 +46,16 @@ export default function CategoryModal({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Category Name</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>Category Name</Text>
+        <IconButton
+          icon="trash"
+          color="red"
+          backgroundColor="transparent"
+          size={24}
+          onPress={() => setShowConfirmDelete(true)}
+        />
+      </View>
       <TextInput
         style={styles.titleInput}
         placeholder="My Category"
@@ -75,6 +89,14 @@ export default function CategoryModal({
         onSave={() => onSave(cat, isNew)}
         onCancel={onCancel}
       />
+      <Modal visible={showConfirmDelete}>
+        <ConfirmationModal
+          title="Delete Category"
+          message="Are you sure you want to delete this category?"
+          onCancel={() => setShowConfirmDelete(false)}
+          onConfirm={() => onDelete(cat, isNew)}
+        />
+      </Modal>
     </View>
   );
 }
@@ -89,6 +111,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#fff",
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
   },
   subtitle: {
     fontSize: 12,
