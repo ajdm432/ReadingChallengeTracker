@@ -211,17 +211,30 @@ export async function updateChallenge(
     // diff categories. Delete removed categories, add new categories
     const existingCategories = existingChallenge.categories;
     const newCategories = challenge.categories;
+    // ensure all categories have unique draftIds
+    for (const cat of [...existingCategories, ...newCategories]) {
+      if (cat.draftId) continue;
+      if (cat.id == null)
+        throw new Error("Category id set to null. Could not update.");
+      cat.draftId = String(cat.id);
+    }
     const removedCategories = existingCategories.filter(
       (c1) => !newCategories.map((c2) => c2.draftId).includes(c1.draftId),
     );
     const addedCategories = newCategories.filter(
       (c1) => !existingCategories.map((c2) => c2.draftId).includes(c1.draftId),
     );
-
+    const persistedCategories = newCategories.filter((c1) =>
+      existingCategories.map((c2) => c2.draftId).includes(c1.draftId),
+    );
 
     for (const cat of removedCategories) {
       if (!cat) throw new Error(`Category id set to null. Could not delete`);
       await deleteCategory(db, cat.id!);
+    }
+
+    for (const cat of persistedCategories) {
+      await updateCategory(db, cat);
     }
 
     for (const cat of addedCategories) {

@@ -73,19 +73,25 @@ export default function NewChallengeScreen() {
       setCategoryShow(false);
       return;
     }
-    const index = challenge.categories.findIndex(
-      (c) => c.draftId === cat.draftId,
-    );
-    if (index !== -1) {
-      const newCategories = challenge.categories.map((c, i) => {
-        if (i === index) {
-          return cat;
-        }
-        return c;
-      });
-      setChallenge((prev) => ({ ...prev, categories: newCategories }));
-      setCategoryShow(false);
+    let index = -1;
+    if (cat.draftId) {
+      index = challenge.categories.findIndex((c) => c.draftId === cat.draftId);
+    } else {
+      index = challenge.categories.findIndex((c) => c.id === cat.id);
     }
+
+    if (index === -1) {
+      alert("Category not found.");
+      return;
+    }
+    const newCategories = challenge.categories.map((c, i) => {
+      if (i === index) {
+        return cat;
+      }
+      return c;
+    });
+    setChallenge((prev) => ({ ...prev, categories: newCategories }));
+    setCategoryShow(false);
   };
 
   const handleSave = async () => {
