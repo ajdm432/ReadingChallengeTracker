@@ -1,3 +1,10 @@
+import AddButton from "@/components/AddButton";
+import GoButton from "@/components/IconButton";
+import { getAllChallengeSummaries } from "@/db/queries";
+import { type ChallengeSummary } from "@/types/model";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
@@ -7,13 +14,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
-import { getAllChallengeSummaries } from "@/db/queries";
-import { type ChallengeSummary } from "@/types/model";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import AddButton from "@/components/AddButton";
-import GoButton from "@/components/IconButton";
 
 export default function ChallengeListScreen() {
   const db = useSQLiteContext();
@@ -176,10 +176,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#888",
     fontSize: 15,
-  },
-  editIcon: {
-    color: "#1eef5dff",
-    lineHeight: 30,
-    fontWeight: "bold",
   },
 });

@@ -1,6 +1,13 @@
 import CategoryList from "@/components/CategoryList";
+import ConfirmationModal from "@/components/ConfirmationModal";
 import CreateCategory from "@/components/CreateCategory";
-import { createChallenge, getChallenge, updateChallenge } from "@/db/queries";
+import IconButton from "@/components/IconButton";
+import {
+  createChallenge,
+  deleteChallenge,
+  getChallenge,
+  updateChallenge,
+} from "@/db/queries";
 import type { Category, Challenge, ChallengeNoIds } from "@/types/model";
 import DateTimePicker, {
   type DateTimePickerEvent,
@@ -35,6 +42,7 @@ export default function NewChallengeScreen() {
   const [dateShow, setDateShow] = useState(false);
   const [showCategory, setShowCategory] = useState<Category | null>(null);
   const [categoryShow, setCategoryShow] = useState(false);
+  const [deleteConfirmShow, setDeleteConfirmShow] = useState(false);
   const [challenge, setChallenge] = useState<Challenge>({
     id: 0,
     name: "",
@@ -110,6 +118,19 @@ export default function NewChallengeScreen() {
     router.back();
   };
 
+  const handleDelete = async () => {
+    if (challengeId) {
+      try {
+        await deleteChallenge(db, challengeId);
+      } catch (e) {
+        console.error("Failed to delete challenge", e);
+        alert("Failed to delete challenge: " + e);
+        return;
+      }
+    }
+    router.back();
+  };
+
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
@@ -148,12 +169,21 @@ export default function NewChallengeScreen() {
         options={{
           title: challengeId ? "Edit Challenge" : "New Challenge",
           headerRight: () => (
-            <Pressable
-              onPress={handleSave}
-              style={({ pressed }) => [pressed && styles.buttonPressed]}
-            >
-              <Text style={styles.saveButton}>Save</Text>
-            </Pressable>
+            <View style={styles.headerButtonPair}>
+              <IconButton
+                icon="trash"
+                color="red"
+                backgroundColor="transparent"
+                size={24}
+                onPress={() => setDeleteConfirmShow(true)}
+              />
+              <Pressable
+                onPress={handleSave}
+                style={({ pressed }) => [pressed && styles.buttonPressed]}
+              >
+                <Text style={styles.saveButton}>Save</Text>
+              </Pressable>
+            </View>
           ),
         }}
       />
@@ -250,6 +280,17 @@ export default function NewChallengeScreen() {
           onCancel={() => setCategoryShow(false)}
         />
       </Modal>
+      <Modal
+        visible={deleteConfirmShow}
+        onRequestClose={() => setDeleteConfirmShow(false)}
+      >
+        <ConfirmationModal
+          title="Delete Challenge"
+          message="Are you sure you want to delete this challenge?"
+          onCancel={() => setDeleteConfirmShow(false)}
+          onConfirm={handleDelete}
+        />
+      </Modal>
       <CategoryList
         categories={challenge.categories}
         onCategoryPress={(c) => {
@@ -319,6 +360,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 12,
     fontSize: 16,
+  },
+  headerButtonPair: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 24,
   },
   categoryHeader: {
     flexDirection: "row",
