@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useEffect } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type QuotaStepperProps = {
   value: number;
@@ -17,7 +17,7 @@ export default function QuotaStepper({
   if (value < min) value = min;
   useEffect(() => {
     onChange(value);
-  }, []);
+  }, [onChange, value]);
 
   const decrement = () => {
     if (value > min) onChange(value - 1);
@@ -34,7 +34,7 @@ export default function QuotaStepper({
           onPress={decrement}
           disabled={value <= min}
         >
-          <Text style={styles.buttonText}>−</Text>
+          <Text style={styles.buttonText}>&#8722;</Text>
         </Pressable>
         <Text style={styles.value}>{value}</Text>
         <Pressable
@@ -42,7 +42,7 @@ export default function QuotaStepper({
           onPress={increment}
           disabled={value >= max}
         >
-          <Text style={styles.buttonText}>＋</Text>
+          <Text style={styles.buttonText}>&#43;</Text>
         </Pressable>
       </View>
     </View>

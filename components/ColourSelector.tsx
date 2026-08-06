@@ -1,5 +1,5 @@
-import { Pressable, View, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
 type ColourSelectorProps = {
   selectedColor: string;
@@ -14,7 +14,7 @@ export default function ColourSelector({
 
   useEffect(() => {
     onPress(currColour);
-  }, []);
+  }, [onPress, currColour]);
 
   const colourOptions = [
     "#00ffc8ff",
