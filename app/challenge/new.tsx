@@ -2,6 +2,7 @@ import CategoryList from "@/components/CategoryList";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CreateCategory from "@/components/CreateCategory";
 import IconButton from "@/components/IconButton";
+import SearchBar from "@/components/SearchBar";
 import {
   createChallenge,
   deleteChallenge,
@@ -27,7 +28,6 @@ import {
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   View,
 } from "react-native";
 
@@ -205,15 +205,13 @@ export default function NewChallengeScreen() {
         }}
       />
       <Text style={styles.header}>Challenge Title</Text>
-      <TextInput
+      <SearchBar
         style={styles.titleInput}
         placeholder="My Challenge"
-        value={challenge.name}
-        onChangeText={(text) =>
+        searchValue={challenge.name}
+        onChangeText={(text: string) =>
           setChallenge((prev) => ({ ...prev, name: text }))
         }
-        autoCorrect={false}
-        clearButtonMode="while-editing"
       />
       <Separator />
       <Text style={styles.header}>Max Category Assignments</Text>
@@ -221,20 +219,19 @@ export default function NewChallengeScreen() {
         The number of different categories for which a single book can be used
         (0 means no limit)
       </Text>
-      <TextInput
+
+      <SearchBar
         style={styles.titleInput}
         placeholder="0"
-        value={challenge.maxAssignmentsPerBook.toString()}
+        searchValue={challenge.maxAssignmentsPerBook.toString()}
         onChangeText={(text) =>
           setChallenge((prev) => ({
             ...prev,
             maxAssignmentsPerBook: Number(text),
           }))
         }
-        autoCorrect={false}
-        clearButtonMode="while-editing"
-        keyboardType="numeric"
       />
+
       <Separator />
       <Text style={styles.header}>Deadline</Text>
       <Text style={styles.subtitle}>
@@ -372,14 +369,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   titleInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    color: "#fff",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
     marginBottom: 12,
-    fontSize: 16,
   },
   headerButtonPair: {
     flexDirection: "row",

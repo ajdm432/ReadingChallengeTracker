@@ -1,11 +1,13 @@
 import { searchBooks, type BookSearchResult } from "@/api/openLibrary";
 import BookRow from "@/components/challenge/BookRow";
 import IconButton from "@/components/IconButton";
+import SearchBar from "@/components/SearchBar";
+import ThemeProvider from "@/constants/theme/ThemeProvider";
 import { addBook, getBooksForChallenge } from "@/db/queries";
 import { type BookNoIds } from "@/types/model";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 type ChallengeAddBookProps = {
   challengeId: number;
@@ -89,42 +91,46 @@ export default function ChallengeAddBook({
   }, [query]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.closeButton}>
-        <IconButton
-          icon="close"
-          color="#000"
-          backgroundColor="#fff"
-          size={32}
-          onPress={onClose!}
+    <ThemeProvider flipped={true}>
+      <View style={styles.container}>
+        <View style={styles.closeButton}>
+          <IconButton
+            icon="close"
+            color="#000"
+            backgroundColor="#fff"
+            size={32}
+            onPress={onClose!}
+          />
+        </View>
+        <SearchBar
+          style={styles.searchBar}
+          placeholder="Search for a book"
+          searchValue={query}
+          onChangeText={(text) => setQuery(text)}
+        />
+
+        <FlatList
+          data={results}
+          extraData={booksAdded}
+          keyExtractor={(item) => item.source ?? item.title}
+          ItemSeparatorComponent={() => <View style={styles.rowSeparator} />}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>
+              {searching ? "Searching..." : "No books match your search"}
+            </Text>
+          }
+          renderItem={({ item }) => (
+            <BookRow
+              mode="add"
+              book={item}
+              onPress={() => handleAddBook(item)}
+              OnPressSecondary={() => {}}
+              added={booksAdded.has(item.source ?? "")}
+            />
+          )}
         />
       </View>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search for a book"
-        onChangeText={(text) => setQuery(text)}
-      />
-      <FlatList
-        data={results}
-        extraData={booksAdded}
-        keyExtractor={(item) => item.source ?? item.title}
-        ItemSeparatorComponent={() => <View style={styles.rowSeparator} />}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            {searching ? "Searching..." : "No books match your search"}
-          </Text>
-        }
-        renderItem={({ item }) => (
-          <BookRow
-            mode="add"
-            book={item}
-            onPress={() => handleAddBook(item)}
-            OnPressSecondary={() => {}}
-            added={booksAdded.has(item.source ?? "")}
-          />
-        )}
-      />
-    </View>
+    </ThemeProvider>
   );
 }
 
@@ -134,11 +140,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchBar: {
-    borderWidth: 1,
-    borderColor: "#000",
-    borderRadius: 10,
-    paddingVertical: 8,
-    fontSize: 16,
     marginBottom: 12,
   },
   emptyText: {

@@ -2,6 +2,7 @@ import AddButton from "@/components/AddButton";
 import BookRow from "@/components/challenge/BookRow";
 import ChallengeAddBook from "@/components/challenge/ChallengeAddBook";
 import IconButton from "@/components/IconButton";
+import SearchBar from "@/components/SearchBar";
 import {
   deleteBook,
   getBooksForChallenge,
@@ -19,7 +20,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 
@@ -201,14 +201,10 @@ export default function ChallengeBookList({
           />
         </View>
       )}
-      <TextInput
-        style={styles.search}
+      <SearchBar
         placeholder="Search books..."
-        placeholderTextColor="#fff"
-        value={search}
+        searchValue={search}
         onChangeText={setSearch}
-        autoCorrect={false}
-        clearButtonMode="while-editing"
       />
       <View
         style={{
@@ -308,11 +304,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignContent: "center",
     marginVertical: 12,
-  },
-  search: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    color: "#fff",
   },
   suggestionButton: {
     backgroundColor: "#007AFF",

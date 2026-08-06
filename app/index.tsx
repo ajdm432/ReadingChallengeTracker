@@ -1,19 +1,14 @@
 import AddButton from "@/components/AddButton";
 import GoButton from "@/components/IconButton";
+import SearchBar from "@/components/SearchBar";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import { getAllChallengeSummaries } from "@/db/queries";
 import { type ChallengeSummary } from "@/types/model";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useMemo, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { FlatList, Pressable, Text, View } from "react-native";
 
 export default function ChallengeListScreen() {
   const db = useSQLiteContext();
@@ -49,16 +44,15 @@ export default function ChallengeListScreen() {
     return challenges.filter((c) => c.name.toLowerCase().includes(q));
   }, [challenges, search]);
 
+  const styles = useStyles();
+
   return (
     <View style={styles.container}>
-      <TextInput
+      <SearchBar
         style={styles.search}
         placeholder="Search challenges..."
-        placeholderTextColor="#fff"
-        value={search}
+        searchValue={search}
         onChangeText={setSearch}
-        autoCorrect={false}
-        clearButtonMode="while-editing"
       />
 
       <FlatList
@@ -125,17 +119,10 @@ export default function ChallengeListScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: { flex: 1, padding: 16 },
   search: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    color: "#fff",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
     marginBottom: 12,
-    fontSize: 16,
   },
   card: {
     flexDirection: "row",
@@ -177,4 +164,4 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 15,
   },
-});
+}));

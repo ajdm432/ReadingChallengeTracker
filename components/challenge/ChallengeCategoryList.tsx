@@ -1,10 +1,11 @@
 import CategoryList from "@/components/CategoryList";
+import SearchBar from "@/components/SearchBar";
 import { getCategories } from "@/db/queries";
 import type { Category } from "@/types/model";
 import { useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useEffect, useState } from "react";
-import { Modal, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
 import ChallengeBookList from "./ChallengeBookList";
 
 type ChallengeCategoryListProps = {
@@ -49,14 +50,10 @@ export default function ChallengeCategoryList({
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.search}
+      <SearchBar
         placeholder="Search challenges..."
-        placeholderTextColor="#fff"
-        value={search}
+        searchValue={search}
         onChangeText={setSearch}
-        autoCorrect={false}
-        clearButtonMode="while-editing"
       />
       <Text style={styles.instructionText}>
         Click a category to assign books to it:
@@ -130,10 +127,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: "italic",
     marginVertical: 6,
-  },
-  search: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    color: "#fff",
   },
 });

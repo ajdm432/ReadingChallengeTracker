@@ -3,10 +3,11 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import IconButton from "@/components/IconButton";
 import QuotaStepper from "@/components/QuotaStepper";
 import SaveCancelButtons from "@/components/SaveCancelButtons";
+import SearchBar from "@/components/SearchBar";
 import { type Category } from "@/types/model";
 import * as Crypto from "expo-crypto";
 import { useState } from "react";
-import { Modal, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
 
 type CreateCategoryProps = {
   challengeId: number;
@@ -56,15 +57,13 @@ export default function CategoryModal({
           onPress={() => setShowConfirmDelete(true)}
         />
       </View>
-      <TextInput
+      <SearchBar
         style={styles.titleInput}
         placeholder="My Category"
-        value={cat.name}
-        onChangeText={(text) =>
+        searchValue={cat.name}
+        onChangeText={(text: string) =>
           setCategory((prev) => ({ ...prev, name: text }))
         }
-        autoCorrect={false}
-        clearButtonMode="while-editing"
       />
       <Separator />
       <Text style={styles.header}>Quota</Text>
@@ -125,14 +124,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   titleInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    color: "#fff",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
     marginBottom: 12,
-    fontSize: 16,
   },
   buttonText: {
     fontSize: 24,
