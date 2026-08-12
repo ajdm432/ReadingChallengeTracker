@@ -7,25 +7,43 @@ type IoniconName = ComponentProps<typeof Ionicons>["name"];
 
 type IconButtonProps = {
   icon?: IoniconName;
-  color?: string;
+  color?: string | undefined;
   size?: number;
+  borderSize?: number | undefined;
   backgroundColor?: string;
   disabled?: boolean;
   onPress: () => void;
 };
 
-export default function GoButton({
+export default function IconButton({
   icon = "chevron-forward",
-  color = "#007AFF",
+  color,
   size = 24,
+  borderSize,
   backgroundColor = "transparent",
   disabled = false,
   onPress,
 }: IconButtonProps) {
   const styles = useStyles();
+  const buttonColor = color || styles.buttonBackground;
+  let borderStyle = {};
+  if (borderSize) {
+    borderStyle = {
+      width: borderSize,
+      height: borderSize,
+    };
+    if (borderSize < size) borderStyle = {};
+  }
   return (
     <Pressable
-      style={({ pressed }) => [pressed && styles.pressed]}
+      style={({ pressed }) => [
+        pressed && styles.pressed,
+        {
+          backgroundColor: backgroundColor,
+        },
+        styles.button,
+        borderStyle,
+      ]}
       onPress={onPress}
       hitSlop={10}
       disabled={disabled}
@@ -33,8 +51,8 @@ export default function GoButton({
       <Ionicons
         name={icon}
         size={size}
-        color={color}
-        style={{ backgroundColor }}
+        color={buttonColor}
+        backGroundColor="transparent"
       />
     </Pressable>
   );
@@ -42,4 +60,10 @@ export default function GoButton({
 
 const useStyles = makeStyles((t) => ({
   pressed: t.button.pressed,
+  buttonBackground: t.colors.button1,
+  button: {
+    borderRadius: t.radius.pill,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 }));

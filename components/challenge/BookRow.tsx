@@ -53,13 +53,11 @@ export default function BookRow({
     return (
       <View style={styles.card}>
         <View style={styles.basicInfo}>
-          <Image
-            style={styles.coverImage}
-            source={{ uri: book.coverUri ?? "" }}
-          />
-          <View>
+          <View style={styles.statusCol}>
             <Text style={styles.statusText}>Status:</Text>
-            <Text style={styles.statusText}>{(book as Book).readStatus}</Text>
+            <Text style={styles.statusText}>
+              {(book as Book).readStatus.replaceAll("_", " ")}
+            </Text>
             <View
               style={[
                 styles.statusCircle,
@@ -67,18 +65,22 @@ export default function BookRow({
               ]}
             />
           </View>
+          <Image
+            style={styles.coverImage}
+            source={{ uri: book.coverUri ?? "" }}
+          />
         </View>
         <View>
-          <Text style={styles.infoText}>{limitStringSize(book.title, 20)}</Text>
+          <Text style={styles.infoText}>{limitStringSize(book.title, 15)}</Text>
           <Text style={[styles.infoText, styles.italic]}>
-            {limitStringSize(book.author!, 20)}
+            {limitStringSize(book.author!, 15)}
           </Text>
         </View>
         <View style={styles.buttonPair}>
-          <IconButton onPress={() => onPress()} />
+          <IconButton color={styles.buttonColor} onPress={() => onPress()} />
           <IconButton
             icon="trash"
-            color="red"
+            color={styles.buttonRed}
             onPress={() => OnPressSecondary()}
           />
         </View>
@@ -99,7 +101,8 @@ export default function BookRow({
         </View>
         <IconButton
           icon={added ? "checkmark" : "add"}
-          color={added ? "green" : "#007AFF"}
+          color={styles.buttonText}
+          backgroundColor={added ? styles.buttonGreen : styles.buttonColor}
           disabled={added}
           onPress={() => onPress()}
         />
@@ -109,13 +112,11 @@ export default function BookRow({
     return (
       <View style={styles.card}>
         <View style={styles.basicInfo}>
-          <Image
-            style={styles.coverImage}
-            source={{ uri: book.coverUri ?? "" }}
-          />
-          <View>
+          <View style={styles.statusCol}>
             <Text style={styles.statusText}>Status:</Text>
-            <Text style={styles.statusText}>{(book as Book).readStatus}</Text>
+            <Text style={styles.statusText}>
+              {(book as Book).readStatus.replaceAll("_", " ")}
+            </Text>
             <View
               style={[
                 styles.statusCircle,
@@ -123,24 +124,30 @@ export default function BookRow({
               ]}
             />
           </View>
+          <Image
+            style={styles.coverImage}
+            source={{ uri: book.coverUri ?? "" }}
+          />
         </View>
         <View>
-          <Text style={styles.infoText}>{limitStringSize(book.title)}</Text>
+          <Text style={styles.infoText}>{limitStringSize(book.title, 15)}</Text>
           <Text style={[styles.infoText, styles.italic]}>
-            {limitStringSize(book.author!, 20)}
+            {limitStringSize(book.author!, 15)}
           </Text>
         </View>
         <IconButton
           icon={isCandidate(bookStatusForCat) ? "checkmark" : "square"}
-          color={isCandidate(bookStatusForCat) ? "green" : "black"}
-          backgroundColor="#f2f2f7"
+          color={
+            isCandidate(bookStatusForCat)
+              ? styles.buttonGreen
+              : styles.buttonBlack
+          }
           size={32}
           onPress={() => onPress(book as Book)}
         />
         <IconButton
           icon={isAssigned(bookStatusForCat) ? "lock-closed" : "lock-open"}
-          color="blue"
-          backgroundColor="#f2f2f7"
+          color={styles.buttonColor}
           size={32}
           onPress={() => OnPressSecondary(book as Book)}
         />
@@ -162,12 +169,18 @@ const useStyles = makeStyles((t) => ({
   coverImage: {
     width: t.image.cover.widthSmall,
     height: t.image.cover.heightSmall,
+    borderRadius: t.radius.sm,
   },
   basicInfo: {
     flexDirection: "row",
     alignItems: "flex-start",
     marginRight: t.spacing.md,
     gap: t.spacing.sm,
+  },
+  statusCol: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: t.spacing.xs,
   },
   infoText: {
     fontSize: t.typography.body.fontSize,
@@ -188,6 +201,11 @@ const useStyles = makeStyles((t) => ({
   statusCircle: {
     width: 16,
     height: 16,
-    marginRight: t.spacing.md,
+    borderRadius: t.radius.pill,
   },
+  buttonColor: t.colors.button0,
+  buttonGreen: t.colors.buttonCreate,
+  buttonRed: t.colors.buttonDelete,
+  buttonBlack: t.colors.buttonVoid,
+  buttonText: t.colors.background,
 }));

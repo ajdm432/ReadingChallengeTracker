@@ -103,16 +103,16 @@ export default function CategoryList({
                 </Text>
                 <IconButton
                   icon={isCandidate(item) ? "checkmark" : "square"}
-                  color={isCandidate(item) ? "green" : "black"}
-                  backgroundColor="#fff"
+                  color={
+                    isCandidate(item) ? styles.buttonGreen : styles.buttonBlack
+                  }
                   size={32}
                   onPress={() => onCategoryPress(item)}
                 />
                 <IconButton
                   icon={isAssigned(item) ? "lock-closed" : "lock-open"}
-                  color="blue"
-                  backgroundColor="#fff"
                   size={32}
+                  color={styles.lockColor}
                   onPress={() => onAssignPress(item)}
                 />
               </View>
@@ -157,4 +157,7 @@ const useStyles = makeStyles((t) => ({
     fontStyle: "italic",
     textAlign: "center",
   },
+  lockColor: t.colors.button1,
+  buttonGreen: t.colors.buttonCreate,
+  buttonBlack: t.colors.buttonVoid,
 }));

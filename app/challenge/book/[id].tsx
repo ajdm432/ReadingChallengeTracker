@@ -154,8 +154,10 @@ export default function BookScreen() {
           source={{ uri: book?.coverUri ?? "" }}
         />
         <View style={styles.bookInfo}>
-          <Text style={styles.dataHeader}>{book?.title}</Text>
-          <Text style={styles.subData}>{book?.author}</Text>
+          <View>
+            <Text style={styles.dataHeader}>{book?.title}</Text>
+            <Text style={styles.subData}>{book?.author}</Text>
+          </View>
           <Pressable
             style={({ pressed }) => [
               styles.statusButton,
@@ -193,21 +195,27 @@ const useStyles = makeStyles((t) => ({
   },
   bookData: {
     flexDirection: "row",
-    justifyContent: "space-around",
     padding: t.spacing.md,
   },
   bookInfo: {
     flex: 1,
+    flexDirection: "column",
+    justifyContent: "space-between",
     marginLeft: t.spacing.md,
+    height: t.image.cover.height,
   },
   coverImage: {
     width: t.image.cover.width,
     height: t.image.cover.height,
+    borderRadius: t.radius.sm,
+    borderWidth: 1,
+    borderColor: t.colors.coverBorder,
   },
   dataHeader: {
     color: t.colors.text,
     fontSize: t.typography.header.fontSize,
     fontWeight: t.typography.header.fontWeight,
+    marginTop: t.spacing.md,
   },
   subData: {
     color: t.colors.text,
@@ -221,7 +229,6 @@ const useStyles = makeStyles((t) => ({
   },
   statusButton: {
     borderRadius: t.radius.sm,
-    marginVertical: t.spacing.md,
     padding: t.spacing.md,
   },
   baseText: {

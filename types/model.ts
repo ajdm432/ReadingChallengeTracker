@@ -7,7 +7,7 @@ export enum ReadStatus {
 export const getStatusColor = (status: ReadStatus) => {
   switch (status) {
     case ReadStatus.NOT_READ:
-      return "blue";
+      return "#b985f9ff";
     case ReadStatus.READ:
       return "green";
     case ReadStatus.DNF:

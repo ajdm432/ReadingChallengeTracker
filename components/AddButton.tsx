@@ -13,6 +13,7 @@ export default function AddButton({
   size = 56,
   onPress,
 }: AddButtonProps) {
+  const iconSize = Math.floor(size * 0.6);
   const styles = useStyles();
   return (
     <Pressable
@@ -29,7 +30,7 @@ export default function AddButton({
         name="add"
         color="#fff"
         backgroundColor="transparent"
-        size={32}
+        size={iconSize}
       />
     </Pressable>
   );
@@ -42,8 +43,8 @@ const useStyles = makeStyles((t) => ({
     bottom: 50,
   },
   fab: {
-    borderRadius: t.radius.lg,
-    backgroundColor: t.colors.create,
+    borderRadius: t.radius.pill,
+    backgroundColor: t.colors.button0,
     justifyContent: "center",
     alignItems: "center",
     elevation: 4,

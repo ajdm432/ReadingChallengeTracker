@@ -69,7 +69,7 @@ const useStyles = makeStyles((t) => ({
     borderColor: t.colors.offBackground,
   },
   suggestionButton: {
-    backgroundColor: t.colors.interact,
+    backgroundColor: t.colors.button1,
     padding: t.spacing.md,
     marginTop: t.spacing.md,
     marginHorizontal: t.spacing.md,
@@ -90,15 +90,15 @@ const useStyles = makeStyles((t) => ({
     borderBottomWidth: 2,
     borderColor: "transparent",
   },
-  activeTab: { borderColor: t.colors.interact },
+  activeTab: { borderColor: t.colors.button1 },
   tabText: {
     fontSize: t.typography.body.fontSize,
     color: t.colors.tabIconDefault,
   },
   activeText: {
-    color: t.colors.interact,
+    color: t.colors.button1,
     fontWeight: t.typography.header.fontWeight,
   },
-  content: { flex: 1, padding: t.spacing.md },
+  content: { flex: 1 },
   contentText: { fontSize: t.typography.body.fontSize, color: t.colors.text },
 }));

@@ -29,7 +29,7 @@ const useStyles = makeStyles((t) => ({
     justifyContent: "space-between",
   },
   saveButton: {
-    backgroundColor: t.colors.interact,
+    backgroundColor: t.colors.button1,
     padding: t.spacing.md,
     borderRadius: t.radius.sm,
   },

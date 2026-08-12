@@ -11,8 +11,11 @@ export const palette = {
   interact1: "#007AFF",
   create: "#1eef5dff",
   delete: "#d62323ff",
-  appTheme: "#7851A9",
+  appTheme0: "#b985f9ff",
+  appTheme1: "#7851A9",
   appTheme2: "#3c0a79ff",
+  appThemeAlt0: "#e6ab2cff",
+  appThemeAlt1: "#ff9900ff",
 };
 
 export const spacing = {

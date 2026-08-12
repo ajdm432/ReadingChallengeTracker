@@ -1,14 +1,13 @@
 import AddButton from "@/components/AddButton";
-import GoButton from "@/components/IconButton";
+import IconButton from "@/components/IconButton";
 import SearchBar from "@/components/SearchBar";
 import { makeStyles } from "@/constants/theme/makeStyles";
 import { getAllChallengeSummaries } from "@/db/queries";
 import { type ChallengeSummary } from "@/types/model";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useMemo, useState } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 
 export default function ChallengeListScreen() {
   const db = useSQLiteContext();
@@ -74,7 +73,8 @@ export default function ChallengeListScreen() {
               <Text style={styles.cardTitle}>
                 {item.name}: {item.overallPercent}%
               </Text>
-              <View style={styles.progressTrack}>
+              <View style={styles.progressContainer}>
+                <View style={styles.progressTrack} />
                 <View
                   style={[
                     styles.progressFill,
@@ -83,34 +83,27 @@ export default function ChallengeListScreen() {
                 />
               </View>
             </View>
-            <Pressable
-              style={({ pressed }) => [
-                { marginHorizontal: 10 },
-                pressed && styles.pressed,
-              ]}
-              onPress={() =>
-                router.push({
-                  pathname: `/challenge/new`,
-                  params: { id: item.id },
-                })
-              }
-              hitSlop={10}
-            >
-              <Ionicons
-                name="create"
-                size={24}
-                color="#007AFF"
-                backgroundColor="transparent"
+            <View style={styles.cardButtons}>
+              <IconButton
+                icon="create"
+                color={styles.buttonColor}
+                onPress={() =>
+                  router.push({
+                    pathname: `/challenge/new`,
+                    params: { id: item.id },
+                  })
+                }
               />
-            </Pressable>
-            <GoButton
-              onPress={() =>
-                router.push({
-                  pathname: `/challenge/[id]`,
-                  params: { id: item.id, challengeTitle: item.name },
-                })
-              }
-            />
+              <IconButton
+                color={styles.buttonColor}
+                onPress={() =>
+                  router.push({
+                    pathname: `/challenge/[id]`,
+                    params: { id: item.id, challengeTitle: item.name },
+                  })
+                }
+              />
+            </View>
           </View>
         )}
       />
@@ -131,6 +124,7 @@ const useStyles = makeStyles((t) => ({
   card: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     padding: t.spacing.md,
     borderRadius: t.spacing.md,
     backgroundColor: t.colors.offBackground,
@@ -139,23 +133,37 @@ const useStyles = makeStyles((t) => ({
   pressed: t.button.pressed,
   cardText: {
     flex: 1,
-    marginRight: t.spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
   },
   cardTitle: {
     fontSize: t.typography.header.fontSize,
     fontWeight: t.typography.header.fontWeight,
-    marginBottom: t.spacing.sm,
+  },
+  cardButtons: {
+    flexDirection: "row",
+    gap: t.spacing.sm,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginRight: t.spacing.sm,
+  },
+  progressContainer: {
+    height: 6,
+    flex: 1,
+    borderRadius: t.radius.pill,
+    marginHorizontal: t.spacing.sm,
   },
   progressTrack: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: t.colors.offBackground,
-    overflow: "hidden",
+    borderRadius: t.radius.pill,
+    backgroundColor: t.colors.progressBackground,
+    height: "100%",
+    width: "100%",
   },
   progressFill: {
+    position: "absolute",
     height: "100%",
-    borderRadius: 3,
-    backgroundColor: t.colors.interactLight,
+    borderRadius: t.radius.pill,
+    backgroundColor: t.colors.progressBar,
   },
   emptyWrap: {
     flexGrow: 1,
@@ -166,4 +174,5 @@ const useStyles = makeStyles((t) => ({
     color: t.colors.faintText,
     fontSize: t.typography.body.fontSize,
   },
+  buttonColor: t.colors.button0,
 }));

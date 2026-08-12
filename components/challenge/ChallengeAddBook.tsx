@@ -99,8 +99,7 @@ export default function ChallengeAddBook({
         <View style={styles.closeButton}>
           <IconButton
             icon="close"
-            color="#000"
-            backgroundColor="#fff"
+            color={styles.buttonBlack}
             size={32}
             onPress={onClose!}
           />
@@ -116,7 +115,6 @@ export default function ChallengeAddBook({
           data={results}
           extraData={booksAdded}
           keyExtractor={(item) => item.source ?? item.title}
-          ItemSeparatorComponent={() => <View style={styles.rowSeparator} />}
           ListEmptyComponent={
             <Text style={styles.emptyText}>
               {searching ? "Searching..." : "No books match your search"}
@@ -149,21 +147,11 @@ const useStyles = makeStyles((t) => ({
     textAlign: "center",
     padding: t.spacing.md,
   },
-  bookRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: t.spacing.sm,
-    padding: t.spacing.sm,
-    backgroundColor: t.colors.offBackground,
-  },
-  rowSeparator: {
-    height: 1,
-    backgroundColor: t.colors.separator,
-  },
   closeButton: {
     flexDirection: "row",
     justifyContent: "flex-end",
     alignContent: "center",
     marginVertical: t.spacing.md,
   },
+  buttonBlack: t.colors.buttonVoid,
 }));

@@ -190,9 +190,7 @@ export default function NewChallengeScreen() {
             <View style={styles.headerButtonPair}>
               <IconButton
                 icon="trash"
-                color="red"
-                backgroundColor="transparent"
-                size={24}
+                color={styles.buttonRed}
                 onPress={() => setDeleteConfirmShow(true)}
               />
               <Pressable
@@ -274,15 +272,14 @@ export default function NewChallengeScreen() {
       <Separator />
       <View style={styles.categoryHeader}>
         <Text style={styles.header}>Categories</Text>
-        <Pressable
-          style={({ pressed }) => [
-            styles.categoryButton,
-            pressed && styles.buttonPressed,
-          ]}
+        <IconButton
+          icon="add"
+          size={24}
+          borderSize={40}
+          color={styles.buttonText.color}
+          backgroundColor={styles.dateButton.backgroundColor}
           onPress={() => showForCategory(null)}
-        >
-          <Text style={styles.buttonText}>+</Text>
-        </Pressable>
+        />
       </View>
       <Modal
         visible={categoryShow}
@@ -321,7 +318,8 @@ export default function NewChallengeScreen() {
         <Text style={styles.header}>Start Challenge?</Text>
         <View style={styles.switchContainer}>
           <Switch
-            trackColor={{ false: "#d62323ff", true: "#81f7ffff" }}
+            trackColor={{ false: styles.buttonRed, true: styles.switchOn }}
+            thumbColor={styles.dateButton.backgroundColor}
             value={challenge.startDate !== null}
             onValueChange={(value) => {
               if (value) {
@@ -349,7 +347,7 @@ const useStyles = makeStyles((t) => ({
     padding: t.spacing.md,
   },
   saveButton: {
-    color: t.colors.interact,
+    color: t.colors.button1,
     fontSize: t.typography.button.fontSize,
     fontWeight: t.typography.button.fontWeight,
   },
@@ -410,7 +408,7 @@ const useStyles = makeStyles((t) => ({
   },
   dateButton: {
     borderWidth: 1,
-    backgroundColor: t.colors.create,
+    backgroundColor: t.colors.button0,
     borderRadius: t.radius.sm,
     paddingHorizontal: t.spacing.md,
     paddingVertical: t.spacing.sm,
@@ -425,4 +423,6 @@ const useStyles = makeStyles((t) => ({
     fontWeight: t.typography.title.fontWeight,
     textAlign: "center",
   },
+  buttonRed: t.colors.buttonDelete,
+  switchOn: t.colors.button1,
 }));

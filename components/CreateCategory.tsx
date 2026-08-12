@@ -53,9 +53,7 @@ export default function CategoryModal({
         <Text style={styles.header}>Category Name</Text>
         <IconButton
           icon="trash"
-          color="red"
-          backgroundColor="transparent"
-          size={24}
+          color={styles.buttonRed}
           onPress={() => setShowConfirmDelete(true)}
         />
       </View>
@@ -134,4 +132,5 @@ const useStyles = makeStyles((t) => ({
     color: t.colors.text,
     textAlign: "center",
   },
+  buttonRed: t.colors.buttonDelete,
 }));

@@ -1,6 +1,6 @@
-import AddButton from "@/components/AddButton";
 import BookRow from "@/components/challenge/BookRow";
 import ChallengeAddBook from "@/components/challenge/ChallengeAddBook";
+import ConfirmationModal from "@/components/ConfirmationModal";
 import IconButton from "@/components/IconButton";
 import SearchBar from "@/components/SearchBar";
 import { makeStyles } from "@/constants/theme/makeStyles";
@@ -43,6 +43,8 @@ export default function ChallengeBookList({
   const [bookStatuses, setBookStatuses] = useState<BookStatusForCategory[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [showSuggested, setShowSuggested] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [removeBookId, setRemoveBookId] = useState<number | null>(null);
 
   if (mode === "assign" && !category) {
     throw new Error("category is required for assign mode");
@@ -66,10 +68,11 @@ export default function ChallengeBookList({
     }
   }, [db, category]);
 
-  const handleRemoveBook = async (bookId: number) => {
+  const handleRemoveBook = async () => {
     try {
-      await deleteBook(db, bookId);
-      setAllBooks((allBooks) => allBooks.filter((b) => b.id !== bookId));
+      if (!removeBookId) return;
+      await deleteBook(db, removeBookId);
+      setAllBooks((allBooks) => allBooks.filter((b) => b.id !== removeBookId));
     } catch (e) {
       console.error("Failed to remove book", e);
     }
@@ -187,11 +190,14 @@ export default function ChallengeBookList({
   return (
     <View style={styles.container}>
       {mode === "assign" && (
-        <View style={styles.closeButton}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>
+            Labelling books with{" "}
+            <Text style={{ fontStyle: "italic" }}>{category?.name}</Text>
+          </Text>
           <IconButton
             icon="close"
-            color="#fff"
-            backgroundColor="#000"
+            color={styles.buttonText.color}
             size={32}
             onPress={onClose!}
           />
@@ -201,6 +207,7 @@ export default function ChallengeBookList({
         placeholder="Search books..."
         searchValue={search}
         onChangeText={setSearch}
+        style={styles.bar}
       />
       <View
         style={{
@@ -214,7 +221,7 @@ export default function ChallengeBookList({
           style={({ pressed }) => [
             styles.suggestionButton,
             pressed && styles.pressed,
-            showSuggested && { backgroundColor: "#ff9900ff" },
+            showSuggested && { backgroundColor: styles.switchOn },
           ]}
           onPress={toggleShowSuggested}
         >
@@ -222,9 +229,12 @@ export default function ChallengeBookList({
             {showSuggested ? "Showing Suggested" : "Showing All"}
           </Text>
         </Pressable>
-        <AddButton
-          positionAbsolute={false}
-          size={44}
+        <IconButton
+          size={32}
+          borderSize={54}
+          icon="add"
+          color={styles.buttonText.color}
+          backgroundColor={styles.buttonBackground}
           onPress={() => {
             setShowAdd(true);
           }}
@@ -258,7 +268,10 @@ export default function ChallengeBookList({
                     params: { id: item.id, challengeId: challengeId },
                   })
                 }
-                OnPressSecondary={() => handleRemoveBook(item.id)}
+                OnPressSecondary={() => {
+                  setRemoveBookId(item.id);
+                  setShowRemoveModal(true);
+                }}
               />
             );
           } else {
@@ -284,6 +297,24 @@ export default function ChallengeBookList({
               onClose={closeAdd}
             />
           </Modal>
+          <Modal
+            visible={showRemoveModal}
+            onRequestClose={() => setShowRemoveModal(false)}
+          >
+            <ConfirmationModal
+              title="Remove Book"
+              message="Are you sure you want to remove this book from the challenge?"
+              onCancel={() => {
+                setRemoveBookId(null);
+                setShowRemoveModal(false);
+              }}
+              onConfirm={() => {
+                handleRemoveBook();
+                setRemoveBookId(null);
+                setShowRemoveModal(false);
+              }}
+            />
+          </Modal>
         </View>
       )}
     </View>
@@ -294,15 +325,21 @@ const useStyles = makeStyles((t) => ({
   container: {
     flex: 1,
     backgroundColor: t.colors.background,
+    padding: t.spacing.md,
   },
-  closeButton: {
+  header: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    alignContent: "center",
+    justifyContent: "space-between",
+    alignContent: "start",
     marginVertical: t.spacing.md,
   },
+  headerText: {
+    fontSize: t.typography.header.fontSize,
+    fontWeight: t.typography.header.fontWeight,
+    color: t.colors.text,
+  },
   suggestionButton: {
-    backgroundColor: t.colors.interact,
+    backgroundColor: t.colors.button0,
     padding: t.spacing.md,
     borderRadius: t.radius.sm,
     alignItems: "center",
@@ -337,5 +374,10 @@ const useStyles = makeStyles((t) => ({
     width: t.image.cover.widthSmall,
     height: t.image.cover.heightSmall,
     marginRight: t.spacing.md,
+  },
+  switchOn: t.colors.button2,
+  buttonBackground: t.colors.button0,
+  bar: {
+    marginBottom: t.spacing.sm,
   },
 }));

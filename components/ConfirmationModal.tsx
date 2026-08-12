@@ -37,6 +37,7 @@ const useStyles = makeStyles((t) => ({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: t.colors.background,
+    padding: t.spacing.lg,
   },
   modalTitle: {
     fontSize: t.typography.header.fontSize,
@@ -67,7 +68,7 @@ const useStyles = makeStyles((t) => ({
     borderRadius: t.radius.sm,
   },
   confirmButton: {
-    backgroundColor: t.colors.interactLight,
+    backgroundColor: t.colors.button1,
     padding: t.spacing.md,
     borderRadius: t.radius.sm,
   },

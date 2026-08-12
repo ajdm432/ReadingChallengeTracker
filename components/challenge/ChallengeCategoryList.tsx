@@ -54,7 +54,8 @@ export default function ChallengeCategoryList({
   return (
     <View style={styles.container}>
       <SearchBar
-        placeholder="Search challenges..."
+        style={styles.searchBar}
+        placeholder="Search categories..."
         searchValue={search}
         onChangeText={setSearch}
       />
@@ -120,6 +121,7 @@ export default function ChallengeCategoryList({
 const useStyles = makeStyles((t) => ({
   container: {
     flex: 1,
+    padding: t.spacing.md,
   },
   categories: {
     flex: 1,
@@ -130,5 +132,8 @@ const useStyles = makeStyles((t) => ({
     fontSize: t.typography.body.fontSize,
     fontStyle: t.typography.caption.fontStyle,
     marginVertical: t.spacing.sm,
+  },
+  searchBar: {
+    marginBottom: t.spacing.md,
   },
 }));
