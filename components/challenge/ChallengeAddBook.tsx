@@ -2,12 +2,13 @@ import { searchBooks, type BookSearchResult } from "@/api/openLibrary";
 import BookRow from "@/components/challenge/BookRow";
 import IconButton from "@/components/IconButton";
 import SearchBar from "@/components/SearchBar";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import ThemeProvider from "@/constants/theme/ThemeProvider";
 import { addBook, getBooksForChallenge } from "@/db/queries";
 import { type BookNoIds } from "@/types/model";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 
 type ChallengeAddBookProps = {
   challengeId: number;
@@ -90,6 +91,8 @@ export default function ChallengeAddBook({
     };
   }, [query]);
 
+  const styles = useStyles();
+
   return (
     <ThemeProvider flipped={true}>
       <View style={styles.container}>
@@ -134,33 +137,33 @@ export default function ChallengeAddBook({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: {
-    padding: 16,
+    padding: t.spacing.md,
     flex: 1,
   },
   searchBar: {
-    marginBottom: 12,
+    marginBottom: t.spacing.md,
   },
   emptyText: {
     textAlign: "center",
-    padding: 16,
+    padding: t.spacing.md,
   },
   bookRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: "#f2f2f7",
+    marginBottom: t.spacing.sm,
+    padding: t.spacing.sm,
+    backgroundColor: t.colors.offBackground,
   },
   rowSeparator: {
     height: 1,
-    backgroundColor: "#ccc",
+    backgroundColor: t.colors.separator,
   },
   closeButton: {
     flexDirection: "row",
     justifyContent: "flex-end",
     alignContent: "center",
-    marginVertical: 12,
+    marginVertical: t.spacing.md,
   },
-});
+}));

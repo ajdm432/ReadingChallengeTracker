@@ -5,6 +5,7 @@
 
 import {
   button,
+  image,
   palette,
   radius,
   spacing,
@@ -18,9 +19,13 @@ export const Themes = {
     radius,
     typography,
     button,
+    image,
     colors: {
       text: palette.darkText,
+      faintText: palette.neutral,
       background: palette.light0,
+      altBackground: palette.dark0,
+      offBackground: palette.neutral,
       tint: palette.light0,
       icon: palette.neutral,
       tabIconDefault: palette.neutral,
@@ -30,6 +35,10 @@ export const Themes = {
       create: palette.create,
       delete: palette.delete,
       searchBorder: palette.neutral,
+      separator: palette.light0,
+      headerBackground: palette.appTheme,
+      headerTint: palette.appTheme2,
+      headerText: palette.lightText,
     },
   },
   dark: {
@@ -37,9 +46,13 @@ export const Themes = {
     radius,
     typography,
     button,
+    image,
     colors: {
       text: palette.lightText,
+      faintText: palette.neutral,
       background: palette.dark0,
+      altBackground: palette.light0,
+      offBackground: palette.light2,
       tint: palette.neutral,
       icon: palette.neutral,
       tabIconDefault: palette.neutral,
@@ -49,6 +62,10 @@ export const Themes = {
       create: palette.create,
       delete: palette.delete,
       searchBorder: palette.light3,
+      separator: palette.light3,
+      headerBackground: palette.appTheme2,
+      headerTint: palette.appTheme,
+      headerText: palette.lightText,
     },
   },
 };

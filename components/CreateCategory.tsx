@@ -4,10 +4,12 @@ import IconButton from "@/components/IconButton";
 import QuotaStepper from "@/components/QuotaStepper";
 import SaveCancelButtons from "@/components/SaveCancelButtons";
 import SearchBar from "@/components/SearchBar";
+import Separator from "@/components/Separator";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import { type Category } from "@/types/model";
 import * as Crypto from "expo-crypto";
 import { useState } from "react";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { Modal, Text, View } from "react-native";
 
 type CreateCategoryProps = {
   challengeId: number;
@@ -16,8 +18,6 @@ type CreateCategoryProps = {
   onSave: (cat: Category, isNew: boolean) => void;
   onCancel: () => void;
 };
-
-const Separator = () => <View style={styles.separator} />;
 
 export default function CategoryModal({
   challengeId,
@@ -44,6 +44,8 @@ export default function CategoryModal({
       return category as Category;
     }
   });
+
+  const styles = useStyles();
 
   return (
     <View style={styles.container}>
@@ -100,41 +102,36 @@ export default function CategoryModal({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: {
-    backgroundColor: "#000",
-    padding: 32,
+    backgroundColor: t.colors.background,
+    padding: t.spacing.md,
     height: "100%",
   },
   header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: t.typography.title.fontSize,
+    fontWeight: t.typography.title.fontWeight,
+    color: t.colors.text,
   },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: t.spacing.sm,
   },
   subtitle: {
-    fontSize: 12,
-    fontStyle: "italic",
-    color: "#fff",
-    marginBottom: 6,
+    fontSize: t.typography.caption.fontSize,
+    fontStyle: t.typography.caption.fontStyle,
+    color: t.colors.text,
+    marginBottom: t.spacing.sm,
   },
   titleInput: {
-    marginBottom: 12,
+    marginBottom: t.spacing.md,
   },
   buttonText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#ffffffff",
+    fontSize: t.typography.button.fontSize,
+    fontWeight: t.typography.button.fontWeight,
+    color: t.colors.text,
     textAlign: "center",
   },
-  separator: {
-    marginVertical: 8,
-    borderBottomColor: "#ffffffff",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});
+}));

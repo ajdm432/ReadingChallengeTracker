@@ -1,8 +1,8 @@
 import IconButton from "@/components/IconButton";
+import Separator from "@/components/Separator";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import type { Category, CategoryStatusForBook } from "@/types/model";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-
-const Separator = () => <View style={styles.separator} />;
+import { FlatList, Pressable, Text, View } from "react-native";
 
 type CategoryListProps = {
   categories: Category[];
@@ -32,6 +32,8 @@ export default function CategoryList({
       catStatusForBook.find((s) => s.categoryId === category.id)?.isAssigned
     );
   };
+
+  const styles = useStyles();
 
   return (
     <View style={styles.container}>
@@ -122,11 +124,11 @@ export default function CategoryList({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: {
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 8,
+    padding: t.spacing.md,
+    backgroundColor: t.colors.altBackground,
+    borderRadius: t.radius.sm,
     flex: 1,
   },
   list: {
@@ -140,26 +142,19 @@ const styles = StyleSheet.create({
   itemColor: {
     width: 16,
     height: 16,
-    borderRadius: 8,
+    borderRadius: t.radius.sm,
   },
   itemText: {
-    fontSize: 16,
+    fontSize: t.typography.body.fontSize,
   },
-  itemRowPressed: {
-    opacity: 0.7,
-  },
+  itemRowPressed: t.button.pressed,
   emptyWrap: {
     justifyContent: "center",
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: t.typography.body.fontSize,
     fontStyle: "italic",
     textAlign: "center",
   },
-  separator: {
-    marginVertical: 8,
-    borderBottomColor: "#000000",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});
+}));

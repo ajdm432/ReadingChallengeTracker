@@ -11,6 +11,8 @@ export const palette = {
   interact1: "#007AFF",
   create: "#1eef5dff",
   delete: "#d62323ff",
+  appTheme: "#7851A9",
+  appTheme2: "#3c0a79ff",
 };
 
 export const spacing = {
@@ -19,6 +21,7 @@ export const spacing = {
   md: 16,
   lg: 24,
   xl: 32,
+  xxl: 48,
 };
 
 export const radius = {
@@ -33,10 +36,25 @@ export const button = {
   pressed: {
     opacity: 0.7,
   },
+  disabled: {
+    opacity: 0.4,
+  },
+};
+
+export const image = {
+  cover: {
+    width: 100,
+    widthSmall: 50,
+    height: 150,
+    heightSmall: 75,
+  },
 };
 
 export const typography = {
-  title: {},
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
   header: {
     fontSize: 20,
     fontWeight: "bold",
@@ -44,6 +62,10 @@ export const typography = {
   subHeader: {},
   body: {
     fontSize: 16,
+  },
+  button: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
   caption: {
     fontSize: 12,

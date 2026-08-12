@@ -1,5 +1,6 @@
+import { makeStyles } from "@/constants/theme/makeStyles";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, View } from "react-native";
 
 type ColourSelectorProps = {
   selectedColor: string;
@@ -29,6 +30,8 @@ export default function ColourSelector({
     "#FF00FF",
   ];
 
+  const styles = useStyles();
+
   return (
     <View style={styles.colourSelector}>
       {colourOptions.map((c) => (
@@ -51,22 +54,22 @@ export default function ColourSelector({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   colourSelector: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    gap: 24,
-    padding: 12,
+    gap: t.spacing.lg,
+    padding: t.spacing.md,
   },
   selectedColour: {
     borderWidth: 3,
-    borderColor: "#fff",
+    borderColor: t.colors.text,
   },
   colourOption: {
     width: 30,
     height: 30,
-    borderRadius: 15,
-    margin: 5,
+    borderRadius: t.radius.md,
+    margin: t.spacing.xs,
   },
-});
+}));

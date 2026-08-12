@@ -3,6 +3,8 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import CreateCategory from "@/components/CreateCategory";
 import IconButton from "@/components/IconButton";
 import SearchBar from "@/components/SearchBar";
+import Separator from "@/components/Separator";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import {
   createChallenge,
   deleteChallenge,
@@ -25,13 +27,10 @@ import {
   ActivityIndicator,
   Modal,
   Pressable,
-  StyleSheet,
   Switch,
   Text,
   View,
 } from "react-native";
-
-const Separator = () => <View style={styles.separator} />;
 
 export default function NewChallengeScreen() {
   const db = useSQLiteContext();
@@ -51,6 +50,8 @@ export default function NewChallengeScreen() {
     categories: [],
     maxAssignmentsPerBook: 0,
   });
+
+  const styles = useStyles();
 
   const showForCategory = (category: Category | null) => {
     setShowCategory(category);
@@ -342,15 +343,15 @@ export default function NewChallengeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: {
     flex: 1,
-    padding: 16,
+    padding: t.spacing.md,
   },
   saveButton: {
-    color: "#007AFF",
-    fontSize: 17,
-    fontWeight: "bold",
+    color: t.colors.interact,
+    fontSize: t.typography.button.fontSize,
+    fontWeight: t.typography.button.fontWeight,
   },
   loadingContainer: {
     flex: 1,
@@ -358,35 +359,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: t.typography.title.fontSize,
+    fontWeight: t.typography.title.fontWeight,
+    color: t.colors.text,
   },
   subtitle: {
-    fontSize: 12,
-    fontStyle: "italic",
-    color: "#fff",
-    marginBottom: 6,
+    fontSize: t.typography.caption.fontSize,
+    fontStyle: t.typography.caption.fontStyle,
+    color: t.colors.text,
+    marginBottom: t.spacing.sm,
   },
   titleInput: {
-    marginBottom: 12,
+    marginBottom: t.spacing.md,
   },
   headerButtonPair: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 24,
+    gap: t.spacing.lg,
   },
   categoryHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: t.spacing.md,
   },
   categoryButton: {
     width: 28,
     height: 28,
-    borderRadius: 50,
-    backgroundColor: "#1eef5dff",
+    borderRadius: t.radius.pill,
+    backgroundColor: t.colors.create,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -394,41 +395,34 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 48,
+    marginBottom: t.spacing.xl,
   },
   switchContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
-    gap: 12,
+    marginRight: t.spacing.md,
+    gap: t.spacing.md,
   },
   switchText: {
-    fontSize: 16,
-    color: "#fff",
+    fontSize: t.typography.body.fontSize,
+    color: t.colors.text,
   },
   dateButton: {
     borderWidth: 1,
-    backgroundColor: "#1eef5dff",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 12,
-    fontSize: 16,
+    backgroundColor: t.colors.create,
+    borderRadius: t.radius.sm,
+    paddingHorizontal: t.spacing.md,
+    paddingVertical: t.spacing.sm,
+    marginBottom: t.spacing.md,
+    fontSize: t.typography.button.fontSize,
   },
-  buttonPressed: {
-    opacity: 0.7,
-  },
+  buttonPressed: t.button.pressed,
   buttonText: {
-    fontSize: 24,
-    color: "#ffffffff",
-    lineHeight: 24,
-    fontWeight: "bold",
+    fontSize: t.typography.button.fontSize,
+    color: t.colors.text,
+    lineHeight: t.spacing.lg,
+    fontWeight: t.typography.title.fontWeight,
     textAlign: "center",
   },
-  separator: {
-    marginVertical: 8,
-    borderBottomColor: "#ffffffff",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});
+}));

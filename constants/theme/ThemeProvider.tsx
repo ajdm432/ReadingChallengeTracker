@@ -2,15 +2,17 @@ import { Themes, type Theme } from "@/constants/theme/theme";
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { useColorScheme } from "react-native";
 
-const ThemeContext = createContext<Theme>(Themes.light);
+const ThemeContext = createContext<Theme | null>(null);
 
 type ThemeProviderProps = {
   children: ReactNode;
+  log?: boolean;
   flipped?: boolean;
 };
 
 export default function ThemeProvider({
   children,
+  log = false,
   flipped = false,
 }: ThemeProviderProps) {
   const scheme = useColorScheme();
@@ -27,4 +29,10 @@ export default function ThemeProvider({
   );
 }
 
-export const useAppTheme = () => useContext(ThemeContext);
+export function useAppTheme(): Theme {
+  const theme = useContext(ThemeContext);
+  if (!theme) {
+    throw new Error("useAppTheme must be used within a ThemeProvider");
+  }
+  return theme;
+}

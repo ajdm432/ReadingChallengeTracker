@@ -1,4 +1,5 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { makeStyles } from "@/constants/theme/makeStyles";
+import { Pressable, Text, View } from "react-native";
 
 type SaveCancelButtonsProps = {
   onSave: () => void;
@@ -9,6 +10,7 @@ export default function SaveCancelButtons({
   onSave,
   onCancel,
 }: SaveCancelButtonsProps) {
+  const styles = useStyles();
   return (
     <View style={styles.buttonPair}>
       <Pressable style={styles.cancelButton} onPress={onCancel}>
@@ -21,25 +23,25 @@ export default function SaveCancelButtons({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   buttonPair: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
   saveButton: {
-    backgroundColor: "#5ff2ffff",
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: t.colors.interact,
+    padding: t.spacing.md,
+    borderRadius: t.radius.sm,
   },
   cancelButton: {
-    backgroundColor: "#fb3838ff",
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: t.colors.delete,
+    padding: t.spacing.md,
+    borderRadius: t.radius.sm,
   },
   buttonText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#ffffffff",
+    fontSize: t.typography.button.fontSize,
+    fontWeight: t.typography.button.fontWeight,
+    color: t.colors.text,
     textAlign: "center",
   },
-});
+}));

@@ -40,5 +40,6 @@ const useStyles = makeStyles((t) => ({
     paddingVertical: t.spacing.sm,
     fontSize: t.typography.body.fontSize,
     borderColor: t.colors.searchBorder,
+    color: t.colors.text,
   },
 }));

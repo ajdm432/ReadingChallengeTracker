@@ -3,6 +3,7 @@ import BookRow from "@/components/challenge/BookRow";
 import ChallengeAddBook from "@/components/challenge/ChallengeAddBook";
 import IconButton from "@/components/IconButton";
 import SearchBar from "@/components/SearchBar";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import {
   deleteBook,
   getBooksForChallenge,
@@ -14,14 +15,7 @@ import type { Book, BookStatusForCategory, Category } from "@/types/model";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useMemo, useState } from "react";
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, Modal, Pressable, Text, View } from "react-native";
 
 type ChallengeBookListProps = {
   mode: "list" | "assign";
@@ -188,6 +182,8 @@ export default function ChallengeBookList({
     );
   }, [allBooks, showSuggested, suggestedBooks, search]);
 
+  const styles = useStyles();
+
   return (
     <View style={styles.container}>
       {mode === "assign" && (
@@ -294,48 +290,52 @@ export default function ChallengeBookList({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: t.colors.background,
   },
   closeButton: {
     flexDirection: "row",
     justifyContent: "flex-end",
     alignContent: "center",
-    marginVertical: 12,
+    marginVertical: t.spacing.md,
   },
   suggestionButton: {
-    backgroundColor: "#007AFF",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: t.colors.interact,
+    padding: t.spacing.md,
+    borderRadius: t.radius.sm,
     alignItems: "center",
   },
   emptyText: {
-    color: "#fff",
+    color: t.colors.text,
   },
   emptyWrap: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  buttonText: { fontSize: 16, color: "#fff", fontWeight: "bold" },
-  pressed: { opacity: 0.7 },
+  buttonText: {
+    fontSize: t.typography.button.fontSize,
+    color: t.colors.text,
+    fontWeight: t.typography.button.fontWeight,
+  },
+  pressed: t.button.pressed,
   list: {
     flex: 1,
-    marginBottom: 32,
+    marginBottom: t.spacing.xl,
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: "#f2f2f7",
-    marginBottom: 10,
+    padding: t.spacing.md,
+    borderRadius: t.spacing.md,
+    backgroundColor: t.colors.offBackground,
+    marginBottom: t.spacing.sm,
   },
   coverImage: {
-    width: 50,
-    height: 75,
-    marginRight: 12,
+    width: t.image.cover.widthSmall,
+    height: t.image.cover.heightSmall,
+    marginRight: t.spacing.md,
   },
-});
+}));

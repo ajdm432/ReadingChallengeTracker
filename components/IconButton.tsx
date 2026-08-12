@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet } from "react-native";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
+import { Pressable } from "react-native";
 
 type IoniconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -17,10 +18,11 @@ export default function GoButton({
   icon = "chevron-forward",
   color = "#007AFF",
   size = 24,
-  backgroundColor = "#f2f2f7",
+  backgroundColor = "transparent",
   disabled = false,
   onPress,
 }: IconButtonProps) {
+  const styles = useStyles();
   return (
     <Pressable
       style={({ pressed }) => [pressed && styles.pressed]}
@@ -38,8 +40,6 @@ export default function GoButton({
   );
 }
 
-const styles = StyleSheet.create({
-  pressed: {
-    opacity: 0.7,
-  },
-});
+const useStyles = makeStyles((t) => ({
+  pressed: t.button.pressed,
+}));

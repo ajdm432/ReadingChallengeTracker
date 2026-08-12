@@ -1,5 +1,6 @@
+import { makeStyles } from "@/constants/theme/makeStyles";
 import { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 type QuotaStepperProps = {
   value: number;
@@ -26,6 +27,8 @@ export default function QuotaStepper({
     if (value < max) onChange(value + 1);
   };
 
+  const styles = useStyles();
+
   return (
     <View style={styles.row}>
       <View style={styles.controls}>
@@ -49,29 +52,32 @@ export default function QuotaStepper({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   row: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 8,
+    paddingVertical: t.spacing.sm,
   },
-  controls: { flexDirection: "row", alignItems: "center", gap: 12 },
+  controls: { flexDirection: "row", alignItems: "center", gap: t.spacing.md },
   button: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: "#e5e5ea",
+    borderRadius: t.radius.md,
+    backgroundColor: t.colors.offBackground,
     alignItems: "center",
     justifyContent: "center",
   },
-  buttonDisabled: { opacity: 0.4 },
-  buttonText: { fontSize: 18, fontWeight: "600" },
+  buttonDisabled: t.button.disabled,
+  buttonText: {
+    fontSize: t.typography.button.fontSize,
+    fontWeight: t.typography.button.fontWeight,
+  },
   value: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: t.typography.body.fontSize,
+    fontWeight: t.typography.header.fontWeight,
     minWidth: 24,
     textAlign: "center",
-    color: "#fff",
+    color: t.colors.text,
   },
-});
+}));

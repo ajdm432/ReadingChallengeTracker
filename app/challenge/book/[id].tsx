@@ -1,4 +1,5 @@
 import CategoryList from "@/components/CategoryList";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import {
   getBook,
   getCategories,
@@ -11,7 +12,7 @@ import { ReadStatus, getStatusColor } from "@/types/model";
 import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 
 export default function BookScreen() {
   const db = useSQLiteContext();
@@ -138,6 +139,8 @@ export default function BookScreen() {
     }, [db, bookId, challengeIdInt]),
   );
 
+  const styles = useStyles();
+
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -184,49 +187,47 @@ export default function BookScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: {
     flex: 1,
   },
   bookData: {
     flexDirection: "row",
     justifyContent: "space-around",
-    padding: 16,
+    padding: t.spacing.md,
   },
   bookInfo: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: t.spacing.md,
   },
   coverImage: {
-    width: 100,
-    height: 150,
+    width: t.image.cover.width,
+    height: t.image.cover.height,
   },
   dataHeader: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "bold",
+    color: t.colors.text,
+    fontSize: t.typography.header.fontSize,
+    fontWeight: t.typography.header.fontWeight,
   },
   subData: {
-    color: "#fff",
-    fontSize: 16,
-    fontStyle: "italic",
+    color: t.colors.text,
+    fontSize: t.typography.body.fontSize,
+    fontStyle: t.typography.caption.fontStyle,
   },
   categoryManagement: {
     flex: 1,
-    padding: 16,
-    marginBottom: 32,
+    padding: t.spacing.md,
+    marginBottom: t.spacing.xl,
   },
   statusButton: {
-    borderRadius: 10,
-    marginVertical: 12,
-    padding: 12,
+    borderRadius: t.radius.sm,
+    marginVertical: t.spacing.md,
+    padding: t.spacing.md,
   },
   baseText: {
-    color: "#fff",
-    fontSize: 16,
+    color: t.colors.text,
+    fontSize: t.typography.body.fontSize,
     textAlign: "center",
   },
-  pressed: {
-    opacity: 0.7,
-  },
-});
+  pressed: t.button.pressed,
+}));

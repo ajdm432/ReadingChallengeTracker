@@ -1,11 +1,12 @@
 import CategoryList from "@/components/CategoryList";
 import SearchBar from "@/components/SearchBar";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import { getCategories } from "@/db/queries";
 import type { Category } from "@/types/model";
 import { useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useEffect, useState } from "react";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { Modal, Text, View } from "react-native";
 import ChallengeBookList from "./ChallengeBookList";
 
 type ChallengeCategoryListProps = {
@@ -47,6 +48,8 @@ export default function ChallengeCategoryList({
       ),
     );
   }, [categories, search]);
+
+  const styles = useStyles();
 
   return (
     <View style={styles.container}>
@@ -114,18 +117,18 @@ export default function ChallengeCategoryList({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: {
     flex: 1,
   },
   categories: {
     flex: 1,
-    marginBottom: 32,
+    marginBottom: t.spacing.xl,
   },
   instructionText: {
-    color: "#fff",
-    fontSize: 16,
-    fontStyle: "italic",
-    marginVertical: 6,
+    color: t.colors.text,
+    fontSize: t.typography.body.fontSize,
+    fontStyle: t.typography.caption.fontStyle,
+    marginVertical: t.spacing.sm,
   },
-});
+}));

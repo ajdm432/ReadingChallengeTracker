@@ -1,8 +1,9 @@
 import type { BookSearchResult } from "@/api/openLibrary";
 import IconButton from "@/components/IconButton";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import type { Book, BookStatusForCategory } from "@/types/model";
 import { getStatusColor } from "@/types/model";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 type BookRowProps = {
   book: Book | BookSearchResult;
@@ -45,6 +46,8 @@ export default function BookRow({
     }
     return text;
   };
+
+  const styles = useStyles();
 
   if (mode === "list") {
     return (
@@ -146,45 +149,45 @@ export default function BookRow({
   }
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   card: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: "#f2f2f7",
-    marginBottom: 10,
+    padding: t.spacing.md,
+    borderRadius: t.radius.md,
+    backgroundColor: t.colors.offBackground,
+    marginBottom: t.spacing.sm,
   },
   coverImage: {
-    width: 50,
-    height: 75,
+    width: t.image.cover.widthSmall,
+    height: t.image.cover.heightSmall,
   },
   basicInfo: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginRight: 12,
-    gap: 6,
+    marginRight: t.spacing.md,
+    gap: t.spacing.sm,
   },
   infoText: {
-    fontSize: 16,
+    fontSize: t.typography.body.fontSize,
     maxWidth: 200,
     flexWrap: "wrap",
   },
   buttonPair: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: t.spacing.sm,
   },
   italic: {
-    fontStyle: "italic",
+    fontStyle: t.typography.caption.fontStyle,
   },
   statusText: {
-    fontSize: 12,
+    fontSize: t.typography.caption.fontSize,
   },
   statusCircle: {
     width: 16,
     height: 16,
-    marginRight: 12,
+    marginRight: t.spacing.md,
   },
-});
+}));

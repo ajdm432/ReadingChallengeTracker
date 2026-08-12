@@ -1,5 +1,6 @@
+import { makeStyles } from "@/constants/theme/makeStyles";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable } from "react-native";
 
 type AddButtonProps = {
   positionAbsolute?: boolean;
@@ -12,6 +13,7 @@ export default function AddButton({
   size = 56,
   onPress,
 }: AddButtonProps) {
+  const styles = useStyles();
   return (
     <Pressable
       style={({ pressed }) => [
@@ -33,15 +35,15 @@ export default function AddButton({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   absPos: {
     position: "absolute",
     right: 20,
     bottom: 50,
   },
   fab: {
-    borderRadius: 28,
-    backgroundColor: "#1eef5dff",
+    borderRadius: t.radius.lg,
+    backgroundColor: t.colors.create,
     justifyContent: "center",
     alignItems: "center",
     elevation: 4,
@@ -53,7 +55,5 @@ const styles = StyleSheet.create({
       height: 2,
     },
   },
-  pressed: {
-    opacity: 0.7,
-  },
-});
+  pressed: t.button.pressed,
+}));

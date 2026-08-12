@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { makeStyles } from "@/constants/theme/makeStyles";
+import { Pressable, Text, View } from "react-native";
 
 type ConfirmationModalProps = {
   title: string;
@@ -13,6 +14,7 @@ export default function ConrimationModal({
   onCancel,
   onConfirm,
 }: ConfirmationModalProps) {
+  const styles = useStyles();
   return (
     <View style={styles.modalContainer}>
       <Text style={styles.modalTitle}>{title}</Text>
@@ -29,44 +31,44 @@ export default function ConrimationModal({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000",
+    backgroundColor: t.colors.background,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#fff",
+    fontSize: t.typography.header.fontSize,
+    fontWeight: t.typography.header.fontWeight,
+    marginBottom: t.spacing.md,
+    color: t.colors.text,
   },
   modalMessage: {
-    fontSize: 16,
-    marginBottom: 32,
-    color: "#fff",
+    fontSize: t.typography.body.fontSize,
+    marginBottom: t.spacing.xl,
+    color: t.colors.text,
   },
   buttonPair: {
     flexDirection: "row",
     alignContent: "center",
     justifyContent: "center",
-    gap: 48,
+    gap: t.spacing.xxl,
   },
   buttonText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#ffffffff",
+    fontSize: t.typography.title.fontSize,
+    fontWeight: t.typography.title.fontWeight,
+    color: t.colors.text,
     textAlign: "center",
   },
   cancelButton: {
-    backgroundColor: "#fb3838ff",
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: t.colors.delete,
+    padding: t.spacing.md,
+    borderRadius: t.radius.sm,
   },
   confirmButton: {
-    backgroundColor: "#59dde9ff",
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: t.colors.interactLight,
+    padding: t.spacing.md,
+    borderRadius: t.radius.sm,
   },
-});
+}));

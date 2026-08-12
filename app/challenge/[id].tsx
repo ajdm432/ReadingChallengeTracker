@@ -1,8 +1,9 @@
 import ChallengeBookList from "@/components/challenge/ChallengeBookList";
 import ChallengeCategoryList from "@/components/challenge/ChallengeCategoryList";
+import { makeStyles } from "@/constants/theme/makeStyles";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 export default function ChallengeScreen() {
   const { id, challengeTitle } = useLocalSearchParams();
@@ -11,6 +12,8 @@ export default function ChallengeScreen() {
     : (challengeTitle ?? "Challenge");
   const [activeTab, setActiveTab] = useState("first");
   const challengeId = Number(id);
+
+  const styles = useStyles();
 
   return (
     <View style={styles.container}>
@@ -57,31 +60,45 @@ export default function ChallengeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((t) => ({
   container: { flex: 1 },
   bookTabContainer: { flex: 1 },
-  tabBar: { flexDirection: "row", borderBottomWidth: 1, borderColor: "#ddd" },
+  tabBar: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: t.colors.offBackground,
+  },
   suggestionButton: {
-    backgroundColor: "#007AFF",
-    padding: 12,
-    marginTop: 12,
-    marginHorizontal: 16,
-    marginBottom: 32,
-    borderRadius: 8,
+    backgroundColor: t.colors.interact,
+    padding: t.spacing.md,
+    marginTop: t.spacing.md,
+    marginHorizontal: t.spacing.md,
+    marginBottom: t.spacing.xl,
+    borderRadius: t.radius.sm,
     alignItems: "center",
   },
-  buttonText: { fontSize: 16, color: "#fff", fontWeight: "bold" },
-  pressed: { opacity: 0.7 },
+  buttonText: {
+    fontSize: t.typography.button.fontSize,
+    color: t.colors.text,
+    fontWeight: t.typography.button.fontWeight,
+  },
+  pressed: t.button.pressed,
   tab: {
     flex: 1,
-    paddingVertical: 14,
+    paddingVertical: t.spacing.md,
     alignItems: "center",
     borderBottomWidth: 2,
     borderColor: "transparent",
   },
-  activeTab: { borderColor: "#007AFF" },
-  tabText: { fontSize: 16, color: "#888" },
-  activeText: { color: "#007AFF", fontWeight: "600" },
-  content: { flex: 1, padding: 16 },
-  contentText: { fontSize: 16, color: "#fff" },
-});
+  activeTab: { borderColor: t.colors.interact },
+  tabText: {
+    fontSize: t.typography.body.fontSize,
+    color: t.colors.tabIconDefault,
+  },
+  activeText: {
+    color: t.colors.interact,
+    fontWeight: t.typography.header.fontWeight,
+  },
+  content: { flex: 1, padding: t.spacing.md },
+  contentText: { fontSize: t.typography.body.fontSize, color: t.colors.text },
+}));

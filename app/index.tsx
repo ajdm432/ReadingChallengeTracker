@@ -120,40 +120,42 @@ export default function ChallengeListScreen() {
 }
 
 const useStyles = makeStyles((t) => ({
-  container: { flex: 1, padding: 16 },
+  container: {
+    flex: 1,
+    padding: t.spacing.md,
+    backgroundColor: t.colors.background,
+  },
   search: {
-    marginBottom: 12,
+    marginBottom: t.spacing.md,
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: "#f2f2f7",
-    marginBottom: 10,
+    padding: t.spacing.md,
+    borderRadius: t.spacing.md,
+    backgroundColor: t.colors.offBackground,
+    marginBottom: t.spacing.sm,
   },
-  pressed: {
-    opacity: 0.7,
-  },
+  pressed: t.button.pressed,
   cardText: {
     flex: 1,
-    marginRight: 12,
+    marginRight: t.spacing.md,
   },
   cardTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    marginBottom: 8,
+    fontSize: t.typography.header.fontSize,
+    fontWeight: t.typography.header.fontWeight,
+    marginBottom: t.spacing.sm,
   },
   progressTrack: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#ddd",
+    backgroundColor: t.colors.offBackground,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
     borderRadius: 3,
-    backgroundColor: "#25e4feff",
+    backgroundColor: t.colors.interactLight,
   },
   emptyWrap: {
     flexGrow: 1,
@@ -161,7 +163,7 @@ const useStyles = makeStyles((t) => ({
   },
   emptyText: {
     textAlign: "center",
-    color: "#888",
-    fontSize: 15,
+    color: t.colors.faintText,
+    fontSize: t.typography.body.fontSize,
   },
 }));
