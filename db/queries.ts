@@ -259,6 +259,7 @@ export async function getChallenge(
       color: cat.color,
       quota: cat.quota,
       assignedCount: cat.assignedCount,
+      notes: cat.notes,
     };
   });
 
@@ -283,6 +284,7 @@ export async function getCategories(
             c.name,
             c.color,
             c.quota,
+            c.notes,
             COUNT(CASE WHEN bc.is_assigned = 1 THEN 1 END) AS assignedCount
       FROM category c 
       LEFT JOIN book_category bc on bc.category_id = c.id
@@ -543,14 +545,16 @@ export async function createCategory(
       challenge_id,
       name,
       color,
-      quota
+      quota,
+      notes
     ) VALUES (
+      ?,
       ?,
       ?,
       ?,
       ?
     )`,
-    [challengeId, cat.name, cat.color, cat.quota],
+    [challengeId, cat.name, cat.color, cat.quota, cat.notes],
   );
   return result.lastInsertRowId;
 }
@@ -573,8 +577,8 @@ export async function updateCategory(
   cat: Category,
 ): Promise<void> {
   const result = await db.runAsync(
-    `UPDATE category SET name = ?, color = ?, quota = ? WHERE id = ?`,
-    [cat.name, cat.color, cat.quota, cat.id],
+    `UPDATE category SET name = ?, color = ?, quota = ?, notes = ? WHERE id = ?`,
+    [cat.name, cat.color, cat.quota, cat.notes, cat.id],
   );
 
   if (result.changes === 0) {

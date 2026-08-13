@@ -38,6 +38,7 @@ export type CategoryNoIds = {
   name: string;
   color: string;
   quota: number;
+  notes: string | null;
 };
 
 export type Category = {
@@ -48,6 +49,7 @@ export type Category = {
   color: string;
   quota: number;
   assignedCount: number;
+  notes: string | null;
 };
 
 export type BookNoIds = {

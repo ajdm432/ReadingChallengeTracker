@@ -192,8 +192,8 @@ export default function ChallengeBookList({
       {mode === "assign" && (
         <View style={styles.header}>
           <Text style={styles.headerText}>
-            Labelling books with{" "}
-            <Text style={{ fontStyle: "italic" }}>{category?.name}</Text>
+            Labelling books with
+            <Text style={{ fontStyle: "italic" }}> {category?.name}</Text>
           </Text>
           <IconButton
             icon="close"
@@ -202,6 +202,12 @@ export default function ChallengeBookList({
             onPress={onClose!}
           />
         </View>
+      )}
+      {mode === "assign" && category?.notes && (
+        <Text style={styles.notes}>
+          <Text style={{ fontStyle: "italic" }}>Category Notes:</Text>
+          <Text> {category?.notes}</Text>
+        </Text>
       )}
       <SearchBar
         placeholder="Search books..."
@@ -339,6 +345,11 @@ const useStyles = makeStyles((t) => ({
     fontSize: t.typography.header.fontSize,
     fontWeight: t.typography.header.fontWeight,
     color: t.colors.text,
+  },
+  notes: {
+    fontSize: t.typography.body.fontSize,
+    color: t.colors.text,
+    marginBottom: t.spacing.md,
   },
   suggestionButton: {
     backgroundColor: t.colors.button0,

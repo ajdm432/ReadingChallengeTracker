@@ -9,7 +9,7 @@ import { makeStyles } from "@/constants/theme/makeStyles";
 import { type Category } from "@/types/model";
 import * as Crypto from "expo-crypto";
 import { useState } from "react";
-import { Modal, Text, View } from "react-native";
+import { Modal, Text, TextInput, View } from "react-native";
 
 type CreateCategoryProps = {
   challengeId: number;
@@ -38,6 +38,7 @@ export default function CategoryModal({
         color: "",
         quota: 0,
         assignedCount: 0,
+        notes: null,
       };
     } else {
       return category as Category;
@@ -65,7 +66,21 @@ export default function CategoryModal({
         }
       />
       <Separator />
-      <Text style={styles.header}>Quota</Text>
+      <Text style={styles.subHeader}>Notes</Text>
+      <TextInput
+        editable
+        multiline
+        numberOfLines={6}
+        placeholder="My Notes"
+        placeholderTextColor={styles.notesInput.color}
+        onChangeText={(text: string) =>
+          setCategory((prev) => ({ ...prev, notes: text === "" ? null : text }))
+        }
+        value={cat.notes || ""}
+        style={styles.notesInput}
+      />
+      <Separator />
+      <Text style={styles.subHeader}>Quota</Text>
       <Text style={styles.subtitle}>
         How many books need to be assigned to this category before it&apos;s
         completed?
@@ -110,6 +125,12 @@ const useStyles = makeStyles((t) => ({
     fontWeight: t.typography.title.fontWeight,
     color: t.colors.text,
   },
+  subHeader: {
+    fontSize: t.typography.header.fontSize,
+    fontWeight: t.typography.header.fontWeight,
+    color: t.colors.text,
+    marginBottom: t.spacing.sm,
+  },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -124,6 +145,18 @@ const useStyles = makeStyles((t) => ({
   },
   titleInput: {
     marginBottom: t.spacing.md,
+  },
+  notesInput: {
+    borderWidth: 1,
+    borderRadius: t.radius.sm,
+    paddingHorizontal: t.spacing.md,
+    paddingVertical: t.spacing.sm,
+    fontSize: t.typography.body.fontSize,
+    borderColor: t.colors.searchBorder,
+    color: t.colors.text,
+    marginBottom: t.spacing.md,
+    height: 100,
+    textAlignVertical: "top",
   },
   buttonText: {
     fontSize: t.typography.button.fontSize,
