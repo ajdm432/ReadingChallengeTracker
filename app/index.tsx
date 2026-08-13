@@ -1,5 +1,6 @@
 import AddButton from "@/components/AddButton";
 import IconButton from "@/components/IconButton";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import SearchBar from "@/components/SearchBar";
 import { makeStyles } from "@/constants/theme/makeStyles";
 import { getAllChallengeSummaries } from "@/db/queries";
@@ -46,69 +47,71 @@ export default function ChallengeListScreen() {
   const styles = useStyles();
 
   return (
-    <View style={styles.container}>
-      <SearchBar
-        style={styles.search}
-        placeholder="Search challenges..."
-        searchValue={search}
-        onChangeText={setSearch}
-      />
+    <ScreenWrapper>
+      <View style={styles.container}>
+        <SearchBar
+          style={styles.search}
+          placeholder="Search challenges..."
+          searchValue={search}
+          onChangeText={setSearch}
+        />
 
-      <FlatList
-        data={visible}
-        keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={visible.length === 0 && styles.emptyWrap}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            {loading
-              ? "Loading..."
-              : search
-                ? "No challenges match your search"
-                : "No challenges yet. Tap '+' to create your first challenge."}
-          </Text>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View style={styles.cardText}>
-              <Text style={styles.cardTitle}>
-                {item.name}: {item.overallPercent}%
-              </Text>
-              <View style={styles.progressContainer}>
-                <View style={styles.progressTrack} />
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${item.overallPercent}%` },
-                  ]}
+        <FlatList
+          data={visible}
+          keyExtractor={(item) => String(item.id)}
+          contentContainerStyle={visible.length === 0 && styles.emptyWrap}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>
+              {loading
+                ? "Loading..."
+                : search
+                  ? "No challenges match your search"
+                  : "No challenges yet. Tap '+' to create your first challenge."}
+            </Text>
+          }
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>
+                  {item.name}: {item.overallPercent}%
+                </Text>
+                <View style={styles.progressContainer}>
+                  <View style={styles.progressTrack} />
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { width: `${item.overallPercent}%` },
+                    ]}
+                  />
+                </View>
+              </View>
+              <View style={styles.cardButtons}>
+                <IconButton
+                  icon="create"
+                  color={styles.buttonColor}
+                  onPress={() =>
+                    router.push({
+                      pathname: `/challenge/new`,
+                      params: { id: item.id },
+                    })
+                  }
+                />
+                <IconButton
+                  color={styles.buttonColor}
+                  onPress={() =>
+                    router.push({
+                      pathname: `/challenge/[id]`,
+                      params: { id: item.id, challengeTitle: item.name },
+                    })
+                  }
                 />
               </View>
             </View>
-            <View style={styles.cardButtons}>
-              <IconButton
-                icon="create"
-                color={styles.buttonColor}
-                onPress={() =>
-                  router.push({
-                    pathname: `/challenge/new`,
-                    params: { id: item.id },
-                  })
-                }
-              />
-              <IconButton
-                color={styles.buttonColor}
-                onPress={() =>
-                  router.push({
-                    pathname: `/challenge/[id]`,
-                    params: { id: item.id, challengeTitle: item.name },
-                  })
-                }
-              />
-            </View>
-          </View>
-        )}
-      />
-      <AddButton onPress={() => router.push("/challenge/new")} />
-    </View>
+          )}
+        />
+        <AddButton onPress={() => router.push("/challenge/new")} />
+      </View>
+    </ScreenWrapper>
   );
 }
 
@@ -116,7 +119,6 @@ const useStyles = makeStyles((t) => ({
   container: {
     flex: 1,
     padding: t.spacing.md,
-    backgroundColor: t.colors.background,
   },
   search: {
     marginBottom: t.spacing.md,

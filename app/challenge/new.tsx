@@ -2,6 +2,7 @@ import CategoryList from "@/components/CategoryList";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CreateCategory from "@/components/CreateCategory";
 import IconButton from "@/components/IconButton";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import SearchBar from "@/components/SearchBar";
 import Separator from "@/components/Separator";
 import { makeStyles } from "@/constants/theme/makeStyles";
@@ -182,162 +183,166 @@ export default function NewChallengeScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          title: challengeId ? "Edit Challenge" : "New Challenge",
-          headerRight: () => (
-            <View style={styles.headerButtonPair}>
-              <IconButton
-                icon="trash"
-                color={styles.buttonRed}
-                onPress={() => setDeleteConfirmShow(true)}
-              />
-              <Pressable
-                onPress={handleSave}
-                style={({ pressed }) => [pressed && styles.buttonPressed]}
-              >
-                <Text style={styles.saveButton}>Save</Text>
-              </Pressable>
-            </View>
-          ),
-        }}
-      />
-      <Text style={styles.header}>Challenge Title</Text>
-      <SearchBar
-        style={styles.titleInput}
-        placeholder="My Challenge"
-        searchValue={challenge.name}
-        onChangeText={(text: string) =>
-          setChallenge((prev) => ({ ...prev, name: text }))
-        }
-      />
-      <Separator />
-      <Text style={styles.header}>Max Category Assignments</Text>
-      <Text style={styles.subtitle}>
-        The number of different categories for which a single book can be used
-        (0 means no limit)
-      </Text>
-
-      <SearchBar
-        style={styles.titleInput}
-        placeholder="0"
-        searchValue={challenge.maxAssignmentsPerBook.toString()}
-        onChangeText={(text) =>
-          setChallenge((prev) => ({
-            ...prev,
-            maxAssignmentsPerBook: Number(text),
-          }))
-        }
-      />
-
-      <Separator />
-      <Text style={styles.header}>Deadline</Text>
-      <Text style={styles.subtitle}>
-        The date by which you have to cross the finish line
-      </Text>
-      <Pressable
-        style={({ pressed }) => [
-          styles.dateButton,
-          pressed && styles.buttonPressed,
-        ]}
-        onPress={() => {
-          setDateShow(true);
-        }}
-      >
-        <Text style={styles.buttonText}>
-          {challenge.endDate
-            ? new Date(challenge.endDate).toLocaleDateString()
-            : "Select Date"}
-        </Text>
-      </Pressable>
-      {dateShow && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={endDate}
-          mode="date"
-          is24Hour={true}
-          onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
-            setDateShow(false);
-            if (event.type === "set" && selectedDate) {
-              setEndDate(selectedDate);
-              setChallenge((prev) => ({
-                ...prev,
-                endDate: selectedDate.toLocaleDateString(),
-              }));
-            }
+    <ScreenWrapper>
+      <View style={styles.container}>
+        <Stack.Screen
+          options={{
+            title: challengeId ? "Edit Challenge" : "New Challenge",
+            headerRight: () => (
+              <View style={styles.headerButtonPair}>
+                <IconButton
+                  icon="trash"
+                  color={styles.buttonRed}
+                  onPress={() => setDeleteConfirmShow(true)}
+                />
+                <Pressable
+                  onPress={handleSave}
+                  style={({ pressed }) => [pressed && styles.buttonPressed]}
+                >
+                  <Text style={styles.saveButton}>Save</Text>
+                </Pressable>
+              </View>
+            ),
           }}
         />
-      )}
-      <Separator />
-      <View style={styles.categoryHeader}>
-        <Text style={styles.header}>Categories</Text>
-        <IconButton
-          icon="add"
-          size={24}
-          borderSize={40}
-          color={styles.buttonText.color}
-          backgroundColor={styles.dateButton.backgroundColor}
-          onPress={() => showForCategory(null)}
-        />
-      </View>
-      <Modal
-        visible={categoryShow}
-        onRequestClose={() => setCategoryShow(false)}
-      >
-        <CreateCategory
-          challengeId={challenge.id}
-          category={showCategory}
-          onDelete={(cat: Category, isNew: boolean) =>
-            deleteCategory(cat, isNew)
+        <Text style={styles.header}>Challenge Title</Text>
+        <SearchBar
+          style={styles.titleInput}
+          placeholder="My Challenge"
+          searchValue={challenge.name}
+          onChangeText={(text: string) =>
+            setChallenge((prev) => ({ ...prev, name: text }))
           }
-          onSave={(cat: Category, isNew: boolean) => createCategory(cat, isNew)}
-          onCancel={() => setCategoryShow(false)}
         />
-      </Modal>
-      <Modal
-        visible={deleteConfirmShow}
-        onRequestClose={() => setDeleteConfirmShow(false)}
-      >
-        <ConfirmationModal
-          title="Delete Challenge"
-          message="Are you sure you want to delete this challenge?"
-          onCancel={() => setDeleteConfirmShow(false)}
-          onConfirm={handleDelete}
+        <Separator />
+        <Text style={styles.header}>Max Category Assignments</Text>
+        <Text style={styles.subtitle}>
+          The number of different categories for which a single book can be used
+          (0 means no limit)
+        </Text>
+
+        <SearchBar
+          style={styles.titleInput}
+          placeholder="0"
+          searchValue={challenge.maxAssignmentsPerBook.toString()}
+          onChangeText={(text) =>
+            setChallenge((prev) => ({
+              ...prev,
+              maxAssignmentsPerBook: Number(text),
+            }))
+          }
         />
-      </Modal>
-      <CategoryList
-        categories={challenge.categories}
-        onCategoryPress={(c) => {
-          showForCategory(c);
-        }}
-        onAssignPress={() => {}}
-      />
-      <Separator />
-      <View style={styles.switchHeader}>
-        <Text style={styles.header}>Start Challenge?</Text>
-        <View style={styles.switchContainer}>
-          <Switch
-            trackColor={{ false: styles.buttonRed, true: styles.switchOn }}
-            thumbColor={styles.dateButton.backgroundColor}
-            value={challenge.startDate !== null}
-            onValueChange={(value) => {
-              if (value) {
+
+        <Separator />
+        <Text style={styles.header}>Deadline</Text>
+        <Text style={styles.subtitle}>
+          The date by which you have to cross the finish line
+        </Text>
+        <Pressable
+          style={({ pressed }) => [
+            styles.dateButton,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={() => {
+            setDateShow(true);
+          }}
+        >
+          <Text style={styles.buttonText}>
+            {challenge.endDate
+              ? new Date(challenge.endDate).toLocaleDateString()
+              : "Select Date"}
+          </Text>
+        </Pressable>
+        {dateShow && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={endDate}
+            mode="date"
+            is24Hour={true}
+            onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
+              setDateShow(false);
+              if (event.type === "set" && selectedDate) {
+                setEndDate(selectedDate);
                 setChallenge((prev) => ({
                   ...prev,
-                  startDate: String(new Date()),
+                  endDate: selectedDate.toLocaleDateString(),
                 }));
-              } else {
-                setChallenge((prev) => ({ ...prev, startDate: null }));
               }
             }}
           />
-          <Text style={styles.switchText}>
-            {challenge.startDate ? "Yes" : "No"}
-          </Text>
+        )}
+        <Separator />
+        <View style={styles.categoryHeader}>
+          <Text style={styles.header}>Categories</Text>
+          <IconButton
+            icon="add"
+            size={24}
+            borderSize={40}
+            color={styles.buttonText.color}
+            backgroundColor={styles.dateButton.backgroundColor}
+            onPress={() => showForCategory(null)}
+          />
+        </View>
+        <Modal
+          visible={categoryShow}
+          onRequestClose={() => setCategoryShow(false)}
+        >
+          <CreateCategory
+            challengeId={challenge.id}
+            category={showCategory}
+            onDelete={(cat: Category, isNew: boolean) =>
+              deleteCategory(cat, isNew)
+            }
+            onSave={(cat: Category, isNew: boolean) =>
+              createCategory(cat, isNew)
+            }
+            onCancel={() => setCategoryShow(false)}
+          />
+        </Modal>
+        <Modal
+          visible={deleteConfirmShow}
+          onRequestClose={() => setDeleteConfirmShow(false)}
+        >
+          <ConfirmationModal
+            title="Delete Challenge"
+            message="Are you sure you want to delete this challenge?"
+            onCancel={() => setDeleteConfirmShow(false)}
+            onConfirm={handleDelete}
+          />
+        </Modal>
+        <CategoryList
+          categories={challenge.categories}
+          onCategoryPress={(c) => {
+            showForCategory(c);
+          }}
+          onAssignPress={() => {}}
+        />
+        <Separator />
+        <View style={styles.switchHeader}>
+          <Text style={styles.header}>Start Challenge?</Text>
+          <View style={styles.switchContainer}>
+            <Switch
+              trackColor={{ false: styles.buttonRed, true: styles.switchOn }}
+              thumbColor={styles.dateButton.backgroundColor}
+              value={challenge.startDate !== null}
+              onValueChange={(value) => {
+                if (value) {
+                  setChallenge((prev) => ({
+                    ...prev,
+                    startDate: String(new Date()),
+                  }));
+                } else {
+                  setChallenge((prev) => ({ ...prev, startDate: null }));
+                }
+              }}
+            />
+            <Text style={styles.switchText}>
+              {challenge.startDate ? "Yes" : "No"}
+            </Text>
+          </View>
         </View>
       </View>
-    </View>
+    </ScreenWrapper>
   );
 }
 

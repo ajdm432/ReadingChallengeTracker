@@ -15,6 +15,7 @@ export default function RootStack({ name, title }: RootStackParamList) {
         headerTintColor: s.headerTintColor,
         headerTitleStyle: s.headerTitleStyle,
         contentStyle: s.contentStyle,
+        headerShadowVisible: false,
       }}
     >
       <Stack.Screen name={name} options={{ title: title }} />
@@ -33,5 +34,9 @@ const useStyles = makeStyles((t) => ({
   },
   contentStyle: {
     backgroundColor: t.colors.background,
+  },
+  gradient: {
+    start: t.colors.headerBackground,
+    end: t.colors.background,
   },
 }));

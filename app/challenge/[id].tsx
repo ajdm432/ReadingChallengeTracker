@@ -1,5 +1,6 @@
 import ChallengeBookList from "@/components/challenge/ChallengeBookList";
 import ChallengeCategoryList from "@/components/challenge/ChallengeCategoryList";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { makeStyles } from "@/constants/theme/makeStyles";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -16,47 +17,52 @@ export default function ChallengeScreen() {
   const styles = useStyles();
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          title: title,
-        }}
-      />
-      <View style={styles.tabBar}>
-        <Pressable
-          style={[styles.tab, activeTab === "first" && styles.activeTab]}
-          onPress={() => setActiveTab("first")}
-        >
-          <Text
-            style={[styles.tabText, activeTab === "first" && styles.activeText]}
+    <ScreenWrapper>
+      <View style={styles.container}>
+        <Stack.Screen
+          options={{
+            title: title,
+          }}
+        />
+        <View style={styles.tabBar}>
+          <Pressable
+            style={[styles.tab, activeTab === "first" && styles.activeTab]}
+            onPress={() => setActiveTab("first")}
           >
-            Categories
-          </Text>
-        </Pressable>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "first" && styles.activeText,
+              ]}
+            >
+              Categories
+            </Text>
+          </Pressable>
 
-        <Pressable
-          style={[styles.tab, activeTab === "second" && styles.activeTab]}
-          onPress={() => setActiveTab("second")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === "second" && styles.activeText,
-            ]}
+          <Pressable
+            style={[styles.tab, activeTab === "second" && styles.activeTab]}
+            onPress={() => setActiveTab("second")}
           >
-            Books
-          </Text>
-        </Pressable>
-      </View>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "second" && styles.activeText,
+              ]}
+            >
+              Books
+            </Text>
+          </Pressable>
+        </View>
 
-      <View style={styles.content}>
-        {activeTab === "first" ? (
-          <ChallengeCategoryList challengeId={challengeId} />
-        ) : (
-          <ChallengeBookList mode="list" challengeId={challengeId} />
-        )}
+        <View style={styles.content}>
+          {activeTab === "first" ? (
+            <ChallengeCategoryList challengeId={challengeId} />
+          ) : (
+            <ChallengeBookList mode="list" challengeId={challengeId} />
+          )}
+        </View>
       </View>
-    </View>
+    </ScreenWrapper>
   );
 }
 

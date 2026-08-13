@@ -188,7 +188,7 @@ export default function ChallengeBookList({
   const styles = useStyles();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, mode === "assign" && styles.assign]}>
       {mode === "assign" && (
         <View style={styles.header}>
           <Text style={styles.headerText}>
@@ -324,8 +324,10 @@ export default function ChallengeBookList({
 const useStyles = makeStyles((t) => ({
   container: {
     flex: 1,
-    backgroundColor: t.colors.background,
     padding: t.spacing.md,
+  },
+  assign: {
+    backgroundColor: t.colors.background,
   },
   header: {
     flexDirection: "row",

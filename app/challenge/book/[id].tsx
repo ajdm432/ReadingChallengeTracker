@@ -1,4 +1,5 @@
 import CategoryList from "@/components/CategoryList";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { makeStyles } from "@/constants/theme/makeStyles";
 import {
   getBook,
@@ -142,50 +143,52 @@ export default function BookScreen() {
   const styles = useStyles();
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          title: book ? "Book: " + book.title : "Book",
-        }}
-      />
-      <View style={styles.bookData}>
-        <Image
-          style={styles.coverImage}
-          source={{ uri: book?.coverUri ?? "" }}
+    <ScreenWrapper>
+      <View style={styles.container}>
+        <Stack.Screen
+          options={{
+            title: book ? "Book: " + book.title : "Book",
+          }}
         />
-        <View style={styles.bookInfo}>
-          <View>
-            <Text style={styles.dataHeader}>{book?.title}</Text>
-            <Text style={styles.subData}>{book?.author}</Text>
+        <View style={styles.bookData}>
+          <Image
+            style={styles.coverImage}
+            source={{ uri: book?.coverUri ?? "" }}
+          />
+          <View style={styles.bookInfo}>
+            <View>
+              <Text style={styles.dataHeader}>{book?.title}</Text>
+              <Text style={styles.subData}>{book?.author}</Text>
+            </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.statusButton,
+                { backgroundColor: getStatusColor(book?.readStatus!) },
+                pressed && styles.pressed,
+              ]}
+              onPress={() => cycleBookStatus()}
+              hitSlop={10}
+              accessibilityLabel="Cycle book status"
+            >
+              <Text style={styles.baseText}>Status: {book?.readStatus}</Text>
+            </Pressable>
           </View>
-          <Pressable
-            style={({ pressed }) => [
-              styles.statusButton,
-              { backgroundColor: getStatusColor(book?.readStatus!) },
-              pressed && styles.pressed,
-            ]}
-            onPress={() => cycleBookStatus()}
-            hitSlop={10}
-            accessibilityLabel="Cycle book status"
-          >
-            <Text style={styles.baseText}>Status: {book?.readStatus}</Text>
-          </Pressable>
+        </View>
+        <View style={styles.categoryManagement}>
+          <CategoryList
+            categories={categories}
+            catStatusForBook={categoryStatuses}
+            mode="assign"
+            onCategoryPress={(category: Category) => {
+              handleSetCandidacy(category);
+            }}
+            onAssignPress={(category: Category) => {
+              handleSetAssignment(category);
+            }}
+          />
         </View>
       </View>
-      <View style={styles.categoryManagement}>
-        <CategoryList
-          categories={categories}
-          catStatusForBook={categoryStatuses}
-          mode="assign"
-          onCategoryPress={(category: Category) => {
-            handleSetCandidacy(category);
-          }}
-          onAssignPress={(category: Category) => {
-            handleSetAssignment(category);
-          }}
-        />
-      </View>
-    </View>
+    </ScreenWrapper>
   );
 }
 
