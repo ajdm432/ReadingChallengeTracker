@@ -26,7 +26,7 @@ Releases are not currently publicly available on Expo or app stores. If you want
 | Version                                                                                   |
 | ----------------------------------------------------------------------------------------- |
 | [v0.1.2](https://github.com/ajdm432/ReadingChallengeTracker/releases/tag/v0.1.2) (latest) |
-| [v0.1.1] (no github release)                                                              |
+| v0.1.1 (no github release)                                                              |
 | [v0.1.0](https://github.com/ajdm432/ReadingChallengeTracker/releases/tag/v0.1.0)          |
 
 ## Developers
