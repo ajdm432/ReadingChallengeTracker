@@ -10,7 +10,6 @@ import type {
   Challenge,
   ChallengeNoIds,
   ChallengeSummary,
-  Subcategory,
 } from "../types/model";
 import { ReadStatus } from "../types/model";
 
@@ -131,14 +130,14 @@ export async function setReadStatus(
  * CHALLENGE & CATEGORIES
  *========================*/
 
-/** Insert challenge + its categories + subcategories in ONE transaction —
+/** Insert challenge + its categories in ONE transaction —
  *  this is where JSON import lands later. Pattern: withTransactionAsync
  *  wrapping multiple inserts, using lastInsertRowId to link children. */
 export async function createChallenge(
   db: SQLiteDatabase,
   challenge: ChallengeNoIds,
 ): Promise<number> {
-  // extract categories and subcategories from challenge object
+  // extract categories from challenge object
   let challengeId: number = 0;
   await db.withTransactionAsync(async () => {
     // insert challenge, keeping track of its id
@@ -164,22 +163,7 @@ export async function createChallenge(
     challengeId = result.lastInsertRowId;
     // insert categories
     for (const cat of challenge.categories) {
-      const categoryId = await createCategory(db, challengeId, cat);
-      // insert subcategories for this category
-      for (const sub of cat.subcategories) {
-        await db.runAsync(
-          `INSERT INTO subcategory (
-            name,
-            color,
-            category_id
-          ) VALUES (
-            ?,
-            ?,
-            ?
-          )`,
-          [sub.name, sub.color, categoryId],
-        );
-      }
+      await createCategory(db, challengeId, cat);
     }
   });
   return challengeId;
@@ -243,7 +227,7 @@ export async function updateChallenge(
   });
 }
 
-/** Needs to delete challenge + its categories + subcategories + books */
+/** Needs to delete challenge + its categories + books */
 export async function deleteChallenge(
   db: SQLiteDatabase,
   challengeId: number,
@@ -267,27 +251,16 @@ export async function getChallenge(
 
   const category_rows = await getCategories(db, challengeId);
 
-  const categories: Category[] = [];
-  for (let i = 0; i < category_rows.length; i++) {
-    const cat = category_rows[i];
-    const rows = await db.getAllAsync(
-      `SELECT id, category_id AS categoryId, name, color FROM subcategory WHERE category_id = ?`,
-      [cat.id],
-    );
-    const subcategories: Subcategory[] = rows.map((r: any) => ({
-      ...r,
-    }));
-    const category: Category = {
+  const categories: Category[] = category_rows.map((cat) => {
+    return {
       challengeId: challengeId,
       id: cat.id,
       name: cat.name,
       color: cat.color,
       quota: cat.quota,
       assignedCount: cat.assignedCount,
-      subcategories: subcategories,
     };
-    categories.push(category);
-  }
+  });
 
   return {
     id: challenge_row.id,
@@ -299,7 +272,7 @@ export async function getChallenge(
   };
 }
 
-/** Categories with their subcategories nested. Two queries + group in JS
+/** Get categories
  *  is simpler than one query with row-reshaping — fine at this scale. */
 export async function getCategories(
   db: SQLiteDatabase,
@@ -322,24 +295,7 @@ export async function getCategories(
   const categories = rows.map((r: any) => ({
     ...r,
     challengeId: challengeId,
-    subcategories: [],
   }));
-
-  for (let i = 0; i < categories.length; i++) {
-    const catId = categories[i].id;
-    const subrows = await db.getAllAsync(
-      `SELECT id,
-              name,
-              color
-        FROM subcategory WHERE category_id = ?`,
-      [catId],
-    );
-
-    categories[i].subcategories = subrows.map((r: any) => ({
-      ...r,
-      id: catId,
-    }));
-  }
 
   return categories;
 }
@@ -365,13 +321,12 @@ export async function setChallengeStartDate(
  * CANDIDACY & ASSIGNMENT
  *========================*/
 
-/** Upsert: mark book as candidate, optionally tagging a subcategory.
+/** Upsert: mark book as candidate for category.
  *  Pattern: INSERT ... ON CONFLICT(book_id, category_id) DO UPDATE */
 export async function setCandidacy(
   db: SQLiteDatabase,
   bookId: number,
   categoryId: number,
-  subcategoryId?: number,
 ): Promise<void> {
   const match = await db.getFirstAsync<{ ok: number }>(
     `SELECT 1 AS ok
@@ -385,45 +340,23 @@ export async function setCandidacy(
       `Book ${bookId} and category ${categoryId} belong to different challenges.`,
     );
   }
-  if (subcategoryId) {
-    const match = await db.getFirstAsync<{ ok: number }>(
-      `SELECT 1 AS ok
-        FROM subcategory s
-        JOIN category c ON c.id = s.category_id
-      WHERE s.id = ? and c.id = ?`,
-      [subcategoryId, categoryId],
-    );
-    if (!match || !match.ok) {
-      throw new Error(
-        `Subcategory ${subcategoryId} does not belong to category ${categoryId}.`,
-      );
-    }
-    await db.runAsync(
-      `INSERT INTO book_category (
-        book_id,
-        category_id,
-        subcategory_id,
-        is_assigned
-      ) VALUES (
-        ?,
-        ?,
-        ?,
-        0
-      ) ON CONFLICT(book_id, category_id) DO UPDATE SET subcategory_id = ?`,
-      [bookId, categoryId, subcategoryId, subcategoryId],
-    );
-  } else {
-    await db.runAsync(
-      `INSERT INTO book_category (
-        book_id,
-        category_id,
-        is_assigned
-      ) VALUES (
-        ?,
-        ?,
-        0
-      ) ON CONFLICT(book_id, category_id) DO UPDATE SET subcategory_id = NULL`,
-      [bookId, categoryId],
+
+  const result = await db.runAsync(
+    `INSERT INTO book_category (
+      book_id,
+      category_id,
+      is_assigned
+    ) VALUES (
+      ?,
+      ?,
+      0
+    ) ON CONFLICT (book_id, category_id) DO UPDATE SET is_assigned = 0`,
+    [bookId, categoryId],
+  );
+
+  if (result.changes === 0) {
+    throw new Error(
+      `Could not set candidacy for book ${bookId} in category ${categoryId}.`,
     );
   }
 }
@@ -576,8 +509,7 @@ export async function getAllChallengeSummaries(
   );
 }
 
-/** Books that are candidates for a category, with their subcategory label —
- *  her "which animals are on which covers" view. Pattern: two JOINs + LEFT JOIN. */
+/** Books that are candidates for a category.*/
 export async function getBooksForCategory(
   db: SQLiteDatabase,
   categoryId: number,
@@ -592,7 +524,6 @@ export async function getBooksForCategory(
             b.read_status AS readStatus,
     FROM book b
     INNER JOIN book_category bc ON bc.book_id = b.id AND category_id = ?
-    LEFT JOIN subcategory sc ON sc.id = bc.subcategory_id
     ORDER BY b.title`,
     [categoryId],
   );
@@ -690,14 +621,11 @@ export async function getCategoryStatusesForBook(
             c.name              AS name,
             c.color             AS color,
             CASE WHEN bc.book_id IS NULL THEN 0 ELSE 1 END AS isCandidate,
-            COALESCE(bc.is_assigned, 0) AS isAssigned,
-            bc.subcategory_id   AS subcategoryId,
-            sc.name             AS subcategoryName
+            COALESCE(bc.is_assigned, 0) AS isAssigned
        FROM book b
        JOIN category c  ON c.challenge_id = b.challenge_id
        LEFT JOIN book_category bc
               ON bc.category_id = c.id AND bc.book_id = b.id
-       LEFT JOIN subcategory sc ON sc.id = bc.subcategory_id
       WHERE b.id = ?
       ORDER BY c.name`,
     [bookId],

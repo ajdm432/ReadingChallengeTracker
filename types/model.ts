@@ -38,7 +38,6 @@ export type CategoryNoIds = {
   name: string;
   color: string;
   quota: number;
-  subcategories: Subcategory[];
 };
 
 export type Category = {
@@ -49,14 +48,6 @@ export type Category = {
   color: string;
   quota: number;
   assignedCount: number;
-  subcategories: Subcategory[];
-};
-
-export type Subcategory = {
-  id: number;
-  categoryId: number;
-  name: string;
-  color: string;
 };
 
 export type BookNoIds = {
@@ -75,7 +66,6 @@ export type Book = {
   coverUri?: string;
   source?: string;
   readStatus: ReadStatus;
-  subcategory?: Subcategory;
   isAssigned?: boolean;
 };
 

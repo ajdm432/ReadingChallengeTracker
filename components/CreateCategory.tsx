@@ -38,7 +38,6 @@ export default function CategoryModal({
         color: "",
         quota: 0,
         assignedCount: 0,
-        subcategories: [],
       };
     } else {
       return category as Category;

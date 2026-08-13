@@ -12,13 +12,7 @@ CREATE TABLE category (
     name TEXT NOT NULL,
     color TEXT NOT NULL,
     quota INTEGER NOT NULL DEFAULT 1
-);
-
-CREATE TABLE subcategory (
-    id INTEGER PRIMARY KEY,
-    category_id INTEGER NOT NULL REFERENCES category(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
-    color TEXT NOT NULL
+    notes TEXT DEFAULT NULL
 );
 
 CREATE TABLE book (
@@ -34,7 +28,6 @@ CREATE TABLE book (
 CREATE TABLE book_category (
     book_id INTEGER NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     category_id INTEGER NOT NULL REFERENCES category(id) ON DELETE CASCADE,
-    subcategory_id INTEGER REFERENCES subcategory(id) ON DELETE SET NULL,
     is_assigned INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (book_id, category_id)
 );
