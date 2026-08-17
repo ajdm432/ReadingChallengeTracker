@@ -1,4 +1,8 @@
-import { searchBooks, type BookSearchResult } from "@/api/openLibrary";
+import {
+  BookSearchErrorKind,
+  searchBooks,
+  type BookSearchResult,
+} from "@/api/openLibrary";
 import BookRow from "@/components/challenge/BookRow";
 import IconButton from "@/components/IconButton";
 import SearchBar from "@/components/SearchBar";
@@ -21,10 +25,12 @@ export default function ChallengeAddBook({
   show,
   onClose,
 }: ChallengeAddBookProps) {
-  const [query, setQuery] = useState("");
+  const [titleQuery, setTitleQuery] = useState("");
+  const [authorQuery, setAuthorQuery] = useState("");
   const [results, setResults] = useState<BookSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [booksAdded, setBooksAdded] = useState<Set<string>>(new Set());
+  const [resultErrMsg, setResultErrMsg] = useState("");
 
   const db = useSQLiteContext();
 
@@ -63,7 +69,7 @@ export default function ChallengeAddBook({
   }, [show, db, challengeId]);
 
   useEffect(() => {
-    if (query.trim().length < 3) {
+    if (titleQuery.trim().length < 3 && authorQuery.trim().length < 3) {
       setResults([]);
       return;
     }
@@ -73,13 +79,26 @@ export default function ChallengeAddBook({
       setSearching(true);
       try {
         const found = await searchBooks(
-          { title: query },
+          { title: titleQuery, author: authorQuery },
           10,
           controller.signal,
         );
         setResults(found);
       } catch (e: any) {
-        if (e.name !== "AbortError") console.error(e);
+        if (e.kind === BookSearchErrorKind.NETWORK) {
+          setResultErrMsg("Network error. Please try again later.");
+        } else if (e.kind === BookSearchErrorKind.TIMEOUT) {
+          setResultErrMsg("Request timed out. Please try again later.");
+        } else if (e.kind === BookSearchErrorKind.UNAVAILABLE) {
+          setResultErrMsg(
+            "Open Library API is unavailable. Please try again later.",
+          );
+        } else if (e.kinf === BookSearchErrorKind.BAD_REQUEST) {
+          setResultErrMsg("Bad request. Please try again later.");
+        } else if (e.kind === BookSearchErrorKind.MALFORMED) {
+          setResultErrMsg("Malformed response. Please try again later.");
+        }
+        console.log(e);
       } finally {
         setSearching(false);
       }
@@ -89,7 +108,7 @@ export default function ChallengeAddBook({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query]);
+  }, [titleQuery, authorQuery]);
 
   const styles = useStyles();
 
@@ -106,9 +125,15 @@ export default function ChallengeAddBook({
         </View>
         <SearchBar
           style={styles.searchBar}
-          placeholder="Search for a book"
-          searchValue={query}
-          onChangeText={(text) => setQuery(text)}
+          placeholder="Search for a book by title"
+          searchValue={titleQuery}
+          onChangeText={(text) => setTitleQuery(text)}
+        />
+        <SearchBar
+          style={styles.searchBar}
+          placeholder="Search for a book by author"
+          searchValue={authorQuery}
+          onChangeText={(text) => setAuthorQuery(text)}
         />
 
         <FlatList
@@ -117,7 +142,11 @@ export default function ChallengeAddBook({
           keyExtractor={(item) => item.source ?? item.title}
           ListEmptyComponent={
             <Text style={styles.emptyText}>
-              {searching ? "Searching..." : "No books match your search"}
+              {searching
+                ? "Searching..."
+                : results.length === 0
+                  ? "No books match your search"
+                  : resultErrMsg}
             </Text>
           }
           renderItem={({ item }) => (
