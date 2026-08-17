@@ -1,6 +1,7 @@
 import type { BookSearchResult } from "@/api/openLibrary";
 import IconButton from "@/components/IconButton";
 import { makeStyles } from "@/constants/theme/makeStyles";
+import { limitStringSize } from "@/services/utils";
 import type { Book, BookStatusForCategory } from "@/types/model";
 import { getStatusColor } from "@/types/model";
 import { Image, Text, View } from "react-native";
@@ -34,17 +35,6 @@ export default function BookRow({
   ) {
     if (!bookStatusForCat) return false;
     return mode === "assign" && bookStatusForCat.isAssigned;
-  };
-
-  const limitStringSize = function (
-    text: string | null | undefined,
-    limit: number = 50,
-  ) {
-    if (!text) return "";
-    if (text.length > limit) {
-      return text.substring(0, limit) + "...";
-    }
-    return text;
   };
 
   const styles = useStyles();

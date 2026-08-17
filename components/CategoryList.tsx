@@ -1,6 +1,7 @@
 import IconButton from "@/components/IconButton";
 import Separator from "@/components/Separator";
 import { makeStyles } from "@/constants/theme/makeStyles";
+import { limitStringSize } from "@/services/utils";
 import type { Category, CategoryStatusForBook } from "@/types/model";
 import { FlatList, Pressable, Text, View } from "react-native";
 
@@ -64,7 +65,9 @@ export default function CategoryList({
                   <View
                     style={[styles.itemColor, { backgroundColor: item.color }]}
                   />
-                  <Text style={styles.itemText}>{item.name}</Text>
+                  <Text style={styles.itemText}>
+                    {limitStringSize(item.name, 28)}
+                  </Text>
                   <Text style={styles.itemText}>
                     Quota: {item.assignedCount}/{item.quota}
                   </Text>
@@ -84,7 +87,9 @@ export default function CategoryList({
                   <View
                     style={[styles.itemColor, { backgroundColor: item.color }]}
                   />
-                  <Text style={styles.itemText}>{item.name}</Text>
+                  <Text style={styles.itemText}>
+                    {limitStringSize(item.name, 28)}
+                  </Text>
                   <Text style={styles.itemText}>
                     Quota: {item.assignedCount}/{item.quota}
                   </Text>
@@ -97,7 +102,9 @@ export default function CategoryList({
                 <View
                   style={[styles.itemColor, { backgroundColor: item.color }]}
                 />
-                <Text style={styles.itemText}>{item.name}</Text>
+                <Text style={styles.itemText}>
+                  {limitStringSize(item.name, 20)}
+                </Text>
                 <Text style={styles.itemText}>
                   Quota: {item.assignedCount}/{item.quota}
                 </Text>
@@ -143,6 +150,7 @@ const useStyles = makeStyles((t) => ({
     width: 16,
     height: 16,
     borderRadius: t.radius.sm,
+    marginRight: t.spacing.sm,
   },
   itemText: {
     fontSize: t.typography.body.fontSize,

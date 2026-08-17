@@ -345,6 +345,7 @@ const useStyles = makeStyles((t) => ({
     fontSize: t.typography.header.fontSize,
     fontWeight: t.typography.header.fontWeight,
     color: t.colors.text,
+    flexShrink: 1,
   },
   notes: {
     fontSize: t.typography.body.fontSize,
