@@ -398,7 +398,7 @@ const useStyles = makeStyles((t) => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: t.spacing.xl,
+    marginBottom: t.spacing.xxl,
   },
   switchContainer: {
     flexDirection: "row",
