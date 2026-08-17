@@ -11,7 +11,7 @@ CREATE TABLE category (
     challenge_id INTEGER NOT NULL REFERENCES challenge(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     color TEXT NOT NULL,
-    quota INTEGER NOT NULL DEFAULT 1
+    quota INTEGER NOT NULL DEFAULT 1,
     notes TEXT DEFAULT NULL
 );
 

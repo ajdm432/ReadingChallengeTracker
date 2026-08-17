@@ -22,19 +22,22 @@ export async function migrateDb(db: SQLiteDatabase) {
 
   if (user_version < 1) {
     // new user. Bring the up to current version
-    await db.execAsync(schema);
-    user_version = CURRENT_VERSION;
+
+    await db.withTransactionAsync(async () => {
+      await db.execAsync(schema);
+      await db.execAsync(`PRAGMA user_version = ${CURRENT_VERSION};`);
+    });
+    return;
   }
 
   if (user_version < 2) {
     // user has out of date schema. Migrate up to v2.
 
     try {
+      await db.execAsync(`PRAGMA foreign_keys = OFF;`);
       await db.withTransactionAsync(async () => {
         // remove subcategory_id column from book_category then delete subcategory table
         await db.execAsync(`
-        PRAGMA foreign_keys = OFF;
-
         CREATE TABLE temp_book_category (
           book_id INTEGER NOT NULL REFERENCES book(id) ON DELETE CASCADE,
           category_id INTEGER NOT NULL REFERENCES category(id) ON DELETE CASCADE,
@@ -62,6 +65,7 @@ export async function migrateDb(db: SQLiteDatabase) {
           );
         }
       });
+      await db.execAsync(`PRAGMA user_version = 2;`);
     } finally {
       await db.execAsync(`PRAGMA foreign_keys = ON;`);
     }
@@ -71,6 +75,4 @@ export async function migrateDb(db: SQLiteDatabase) {
 
   // future: if (user_version < 3) { BRING TABLE UP TO VERSION 3 }
   // Each additional version requires that handling of previous versions is above
-
-  await db.execAsync(`PRAGMA user_version = ${CURRENT_VERSION};`);
 }
